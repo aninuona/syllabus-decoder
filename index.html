@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Syllabus Decoder | Home</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+      .dashboard-section {
+        max-width: 1200px;
+        margin: 60px auto;
+        padding: 0 40px;
+      }
+      
+      .dashboard-header {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+      
+      .dashboard-header h2 {
+        font-size: 1.8rem;
+        margin: 0 0 8px 0;
+      }
+      
+      .dashboard-header p {
+        color: var(--ink-3);
+        margin: 0;
+      }
+      
+      .filters-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr auto;
+        gap: 16px;
+        margin-bottom: 30px;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+      }
+      
+      @media (max-width: 900px) {
+        .filters-row {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      
+      .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      
+      .filter-group label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--ink-3);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      
+      .filter-group select {
+        padding: 8px 12px;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        font-size: 0.9rem;
+        background: white;
+      }
+      
+      .filter-group select:focus {
+        outline: none;
+        border-color: var(--blue);
+      }
+      
+      .btn-reset {
+        padding: 8px 16px;
+        background: var(--ink-2);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 600;
+        align-self: flex-end;
+      }
+      
+      .btn-reset:hover {
+        opacity: 0.9;
+      }
+      
+      .stats-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 40px;
+      }
+      
+      @media (max-width: 900px) {
+        .stats-row {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      
+      .stat-card {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+      }
+      
+      .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--blue);
+        margin-bottom: 6px;
+      }
+      
+      .stat-label {
+        font-size: 0.8rem;
+        color: var(--ink-3);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      
+      .viz-card {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 24px;
+        margin-bottom: 24px;
+      }
+      
+      .viz-card h3 {
+        font-size: 1.1rem;
+        margin: 0 0 12px 0;
+        font-weight: 600;
+      }
+      
+      .viz-card p {
+        font-size: 0.85rem;
+        color: var(--ink-3);
+        margin: 0 0 16px 0;
+      }
+      
+      .heatmap-wrapper {
+        overflow-x: auto;
+      }
+      
+      .heatmap-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.75rem;
+      }
+      
+      .heatmap-table th {
+        background: var(--bg-2);
+        padding: 12px 8px;
+        text-align: center;
+        font-weight: 600;
+        color: var(--ink-3);
+        border: 1px solid var(--border);
+      }
+      
+      .heatmap-table td {
+        padding: 10px 8px;
+        text-align: center;
+        border: 1px solid var(--border);
+      }
+      
+      .heatmap-row-label {
+        text-align: left;
+        font-weight: 600;
+        background: var(--bg-1);
+        padding: 10px 12px !important;
+      }
+      
+      .heatmap-cell {
+        font-weight: 600;
+        color: white;
+        cursor: pointer;
+        transition: all 0.2s;
+        min-width: 50px;
+      }
+      
+      .heatmap-cell:hover {
+        opacity: 0.85;
+        box-shadow: inset 0 0 0 2px rgba(255,255,255,0.5);
+      }
+      
+      /* Color scale: warm (low T/high E/C) to cool (high T/low E/C) */
+      .cell-warm-5 { background: #ef4444; } /* Warmest: T0-T1 or E2 or C3 */
+      .cell-warm-4 { background: #f97316; }
+      .cell-warm-3 { background: #eab308; }
+      .cell-warm-2 { background: #84cc16; }
+      .cell-warm-1 { background: #22c55e; }
+      .cell-neutral { background: #6b7280; } /* Gray: T2-T3, C1-C2, E1 */
+      .cell-cool-1 { background: #06b6d4; }
+      .cell-cool-2 { background: #0284c7; }
+      .cell-cool-3 { background: #4f46e5; }
+      .cell-cool-4 { background: #6366f1; }
+      .cell-cool-5 { background: #1e40af; } /* Coolest: T4-T5 or E0 or C0 */
+      
+      .legend {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+        font-size: 0.85rem;
+      }
+      
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      
+      .legend-box {
+        width: 20px;
+        height: 20px;
+        border-radius: 2px;
+      }
+    </style>
+</head>
+<body>
+
+  <nav class="main-nav">
+    <div class="logo"><a href="/">Syllabus Decoder</a></div>
+    <div class="nav-links">
+      <a href="/decoder">Decoder</a>
+      <a href="/buildsyllabus">Builder</a>
+      <a href="/traininggame">Game</a>
+      <a href="/admin">Admin</a>
+    </div>
+  </nav>
+
+  <main class="hero-container">
+    <h1>Clear Rules for the <span class="highlight">AI Era.</span></h1>
+    <p class="subtitle">Translate complex academic policies into simple boundaries.</p>
+
+    <div class="card-grid">
+      <a href="/decoder" class="nav-card">
+        <h3>📋 Decode</h3>
+        <p>Paste a syllabus section and instantly identify its AI policy tier.</p>
+      </a>
+
+      <a href="/buildsyllabus" class="nav-card">
+        <h3>✏️ Build</h3>
+        <p>Answer questions about your values and create a custom AI policy.</p>
+      </a>
+
+      <a href="/traininggame" class="nav-card">
+        <h3>🎯 Calibrate</h3>
+        <p>Test your knowledge by classifying real syllabus excerpts.</p>
+      </a>
+    </div>
+  </main>
+
+  <!-- Dashboard -->
+  <section class="dashboard-section">
+    <div class="dashboard-header">
+      <h2>Dataset Insights</h2>
+      <p>Explore patterns across 200+ academic institutions</p>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-row">
+      <div class="filter-group">
+        <label>Discipline</label>
+        <select id="filter-discipline">
+          <option value="">All</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label>Institution Type</label>
+        <select id="filter-institution">
+          <option value="">All</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label>State / Region</label>
+        <select id="filter-location">
+          <option value="">All</option>
+        </select>
+      </div>
+      
+      <button class="btn-reset" onclick="resetFilters()">Reset</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-value" id="stat-total">—</div>
+        <div class="stat-label">Policies</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-disciplines">—</div>
+        <div class="stat-label">Disciplines</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-institutions">—</div>
+        <div class="stat-label">Institutions</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-locations">—</div>
+        <div class="stat-label">States</div>
+      </div>
+    </div>
+
+    <!-- Main Heatmap -->
+    <div class="viz-card">
+      <h3>Policy Classification Heatmap (T-Tier × C-Level × E-Level)</h3>
+      <p>Each cell shows the count of policies. Warm colors = permissive (low T, high C/E). Cool colors = restrictive (high T, low C/E).</p>
+      <div class="heatmap-wrapper">
+        <table class="heatmap-table" id="main-heatmap">
+          <thead>
+            <tr id="heatmap-header"></tr>
+          </thead>
+          <tbody id="heatmap-body"></tbody>
+        </table>
+      </div>
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-box" style="background: #ef4444;"></div>
+          <span>Most Permissive</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-box" style="background: #6b7280;"></div>
+          <span>Moderate</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-box" style="background: #1e40af;"></div>
+          <span>Most Restrictive</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    SUNY Old Westbury
+  </footer>
+
+  <script>
+    let allData = [];
+    let filteredData = [];
+
+    // Normalize discipline names
+    function normalizeDiscipline(d) {
+      if (!d) return '';
+      const lower = d.toLowerCase();
+      if (lower.includes('writing')) return 'Writing';
+      return d;
+    }
+
+    async function loadData() {
+      try {
+        const res = await fetch('/api/admin/entries');
+        if (!res.ok) throw new Error('Failed to load');
+        allData = await res.json();
+        // Normalize disciplines
+        allData = allData.map(d => ({
+          ...d,
+          discipline: normalizeDiscipline(d.discipline)
+        }));
+        filteredData = [...allData];
+        
+        populateFilters();
+        updateStats();
+        renderHeatmap();
+      } catch (e) {
+        console.error('Error:', e);
+        document.querySelector('.dashboard-section').innerHTML += 
+          '<p style="color:red;text-align:center;">Dataset unavailable</p>';
+      }
+    }
+
+    function populateFilters() {
+      const disciplines = [...new Set(allData.map(d => d.discipline).filter(Boolean))].sort();
+      const institutions = [...new Set(allData.map(d => d.institution_type).filter(Boolean))].sort();
+      const locations = [...new Set(allData.map(d => d.state_region).filter(Boolean))].sort();
+
+      disciplines.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d;
+        opt.textContent = d;
+        document.getElementById('filter-discipline').appendChild(opt);
+      });
+
+      institutions.forEach(i => {
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = i;
+        document.getElementById('filter-institution').appendChild(opt);
+      });
+
+      locations.forEach(l => {
+        const opt = document.createElement('option');
+        opt.value = l;
+        opt.textContent = l;
+        document.getElementById('filter-location').appendChild(opt);
+      });
+
+      document.getElementById('filter-discipline').addEventListener('change', applyFilters);
+      document.getElementById('filter-institution').addEventListener('change', applyFilters);
+      document.getElementById('filter-location').addEventListener('change', applyFilters);
+    }
+
+    function applyFilters() {
+      const disc = document.getElementById('filter-discipline').value;
+      const inst = document.getElementById('filter-institution').value;
+      const loc = document.getElementById('filter-location').value;
+
+      filteredData = allData.filter(d => {
+        return (disc === '' || d.discipline === disc) &&
+               (inst === '' || d.institution_type === inst) &&
+               (loc === '' || d.state_region === loc);
+      });
+
+      updateStats();
+      renderHeatmap();
+    }
+
+    function resetFilters() {
+      document.getElementById('filter-discipline').value = '';
+      document.getElementById('filter-institution').value = '';
+      document.getElementById('filter-location').value = '';
+      filteredData = [...allData];
+      updateStats();
+      renderHeatmap();
+    }
+
+    function updateStats() {
+      document.getElementById('stat-total').textContent = filteredData.length;
+      document.getElementById('stat-disciplines').textContent = new Set(filteredData.map(d => d.discipline).filter(Boolean)).size;
+      document.getElementById('stat-institutions').textContent = new Set(filteredData.map(d => d.institution).filter(Boolean)).size;
+      document.getElementById('stat-locations').textContent = new Set(filteredData.map(d => d.state_region).filter(Boolean)).size;
+    }
+
+    function colorizeCell(tTier, cLevel, eLevel, count) {
+      if (count === 0) return 'cell-neutral';
+      
+      // Calculate "permissiveness" score
+      // Low T (0-1) + High C (2-3) + High E (1-2) = warm
+      // High T (4-5) + Low C (0-1) + Low E (0) = cool
+      
+      const tValue = parseInt(tTier[1]); // 0-5
+      const cValue = parseInt(cLevel[1]); // 0-3
+      const eValue = parseInt(eLevel[1]); // 0-2
+      
+      // Score: lower T is better (warm), higher T is worse (cool)
+      // Higher C is better (warm), lower C is worse (cool)
+      // Higher E is better (warm), lower E is worse (cool)
+      const score = -tValue + cValue + eValue; // Range: -5 to 10
+      
+      if (score >= 7) return 'cell-warm-5';
+      if (score >= 4) return 'cell-warm-4';
+      if (score >= 2) return 'cell-warm-3';
+      if (score >= 0) return 'cell-warm-2';
+      if (score >= -2) return 'cell-warm-1';
+      if (score >= -4) return 'cell-neutral';
+      if (score >= -6) return 'cell-cool-1';
+      if (score >= -8) return 'cell-cool-2';
+      if (score >= -10) return 'cell-cool-3';
+      return 'cell-cool-5';
+    }
+
+    function renderHeatmap() {
+      const tiers = ['T0', 'T1', 'T2', 'T3', 'T4', 'T5'];
+      const cLevels = ['C0', 'C1', 'C2', 'C3'];
+      const eLevels = ['E0', 'E1', 'E2'];
+
+      // Build matrix: key = "T0-C0-E0", value = count
+      const matrix = {};
+      
+      tiers.forEach(t => {
+        cLevels.forEach(c => {
+          eLevels.forEach(e => {
+            const key = `${t}-${c}-${e}`;
+            matrix[key] = 0;
+          });
+        });
+      });
+
+      filteredData.forEach(d => {
+        const key = `${d.tier_id}-${d.compliance_id}-${d.enforcement_id}`;
+        if (matrix[key] !== undefined) {
+          matrix[key]++;
+        }
+      });
+
+      // Build header
+      const header = document.getElementById('heatmap-header');
+      let headerHtml = '<th style="text-align:left; width:100px;">T-Tier</th>';
+      cLevels.forEach(c => {
+        eLevels.forEach(e => {
+          headerHtml += `<th>${c}<br>${e}</th>`;
+        });
+      });
+      header.innerHTML = headerHtml;
+
+      // Build rows (one per T-tier)
+      const body = document.getElementById('heatmap-body');
+      let bodyHtml = '';
+      
+      tiers.forEach(t => {
+        let row = `<td class="heatmap-row-label">${t}</td>`;
+        cLevels.forEach(c => {
+          eLevels.forEach(e => {
+            const key = `${t}-${c}-${e}`;
+            const count = matrix[key];
+            const colorClass = colorizeCell(t, c, e, count);
+            row += `<td class="heatmap-cell ${colorClass}" title="${t} × ${c} × ${e}: ${count} policies">${count}</td>`;
+          });
+        });
+        bodyHtml += `<tr>${row}</tr>`;
+      });
+
+      body.innerHTML = bodyHtml;
+    }
+
+    loadData();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Syllabus Decoder | Admin Console</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    .admin-layout {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: var(--space-10) var(--space-6);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-10);
+    }
+
+    /* Top bar with title, action buttons */
+    .admin-topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+    }
+    .admin-topbar__title h1 { font-size: 2rem; margin-bottom: var(--space-1); }
+    .admin-topbar__title p  { color: var(--ink-4); font-size: 0.875rem; max-width: none; }
+    .admin-topbar__actions  { display: flex; gap: var(--space-3); align-items: center; }
+
+    /* Search and filter bar  */
+    .table-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+      margin-bottom: var(--space-5);
+    }
+    .table-controls h2 { font-size: 1.3rem; }
+
+    .search-box {
+      position: relative;
+    }
+    .search-box__icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--ink-4);
+      pointer-events: none;
+      font-size: 0.85rem;
+    }
+    .search-box input {
+      padding-left: 34px;
+      width: 240px;
+    }
+
+    /* table rows */
+    .row-actions { display: flex; gap: var(--space-4); }
+    .row-actions a {
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .row-actions .edit { color: var(--blue); }
+    .row-actions .flag { color: var(--red); }
+    .row-actions .edit:hover { color: var(--blue-hover); }
+    .row-actions .flag:hover { color: #991B1B; }
+
+    /* Upload entry */
+    .section-header { margin-bottom: var(--space-6); }
+    .section-header h2 { font-size: 1.3rem; margin-bottom: var(--space-2); }
+    .section-header p  { font-size: 0.875rem; color: var(--ink-3); max-width: 42ch; }
+
+    .upload-grid {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: var(--space-8);
+      align-items: start;
+    }
+
+    .upload-form {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-xl);
+      padding: var(--space-8);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-5);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-4);
+    }
+    .form-row-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: var(--space-4);
+    }
+
+    /* e Edit overlay */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-6);
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--surface);
+      border-radius: var(--r-xl);
+      padding: var(--space-8);
+      width: 100%;
+      max-width: 500px;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-5);
+    }
+    .modal__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal__header h3 { font-size: 1.2rem; }
+    .modal__close {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      color: var(--ink-4);
+      cursor: pointer;
+      padding: 4px;
+    }
+    .modal__close:hover { color: var(--ink); }
+
+    /* Success/error banner */
+    #feedback-banner {
+      display: none;
+      position: fixed;
+      bottom: var(--space-6);
+      right: var(--space-6);
+      z-index: 300;
+      min-width: 260px;
+      box-shadow: var(--shadow-lg);
+      border-radius: var(--r-lg);
+    }
+    #feedback-banner.visible { display: flex; }
+
+    @media (max-width: 800px) {
+      .upload-grid { grid-template-columns: 1fr; }
+      .form-row, .form-row-3 { grid-template-columns: 1fr; }
+      .search-box input { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="nav">
+    <a href="/" class="nav__brand">Syllabus Decoder</a>
+    <div class="nav-links">
+      <a href="/decoder">Decoder</a>
+      <a href="/buildsyllabus">Policy Builder</a>
+      <a href="/traininggame">Training Game</a>
+    </div>
+    <div style="display:flex; gap: var(--space-4); align-items:center;">
+      <span style="font-size:0.8rem; color:var(--ink-4);" id="admin-email-display"></span>
+      <button class="btn btn--ghost btn--sm" id="logout-btn">Sign Out</button>
+    </div>
+  </nav>
+
+  <div class="admin-layout">
+
+    <!-- Top bar -->
+    <div class="admin-topbar fade-up">
+      <div class="admin-topbar__title">
+        <h1><span style="color:var(--ink)">Admin</span> <span class="accent" style="color:var(--blue)">Console</span></h1>
+        <p>Manage syllabus database entries and system.</p>
+      </div>
+      <div class="admin-topbar__actions">
+        <button class="btn btn--ghost btn--sm" id="export-btn">Export CSV</button>
+        <button class="btn btn--dark btn--sm" id="logs-btn">System Logs</button>
+      </div>
+    </div>
+
+    <!-- table -->
+    <section class="fade-up fade-up--1">
+      <div class="table-controls">
+        <h2>Search Repository</h2>
+        <div class="search-box">
+          <span class="search-box__icon">⌕</span>
+          <input class="form-input" type="text" id="filter-input" placeholder="Filter by institution…">
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table id="repo-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Institution</th>
+              <th>Discipline</th>
+              <th>T-Tier</th>
+              <th>C-Level</th>
+              <th>E-Level</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="repo-tbody">
+            <tr>
+              <td colspan="8" style="text-align:center; color:var(--ink-4); padding: var(--space-8);">
+                Loading entries…
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Upload or Add Entry -->
+    <section class="fade-up fade-up--2">
+      <div class="upload-grid">
+        <div class="section-header">
+          <h2>Upload Entry</h2>
+          <p>Manually add a new syllabus snippet to the database. Ensure the institution name matches official records for consistent reporting.</p>
+        </div>
+
+        <form class="upload-form" id="upload-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Institution</label>
+              <input class="form-input" type="text" name="institution" placeholder="e.g. SUNY Old Westbury" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Discipline</label>
+              <input class="form-input" type="text" name="discipline" placeholder="e.g. Computer Science">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Raw Policy Text</label>
+            <textarea class="form-textarea" name="policy_text" placeholder="Paste the exact syllabus language here…" required></textarea>
+          </div>
+
+          <div class="form-row-3">
+            <div class="form-group">
+              <label class="form-label">T-Tier</label>
+              <select class="form-select" name="tier_id">
+                <option value="T0">T0 – Prohibited</option>
+                <option value="T1">T1 – Some exceptions</option>
+                <option value="T2">T2 – Ask permission</option>
+                <option value="T3" selected>T3 – Bounded use</option>
+                <option value="T4">T4 – With documentation</option>
+                <option value="T5">T5 – Open / encouraged</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">C-Level</label>
+              <select class="form-select" name="compliance_id">
+                <option value="C0">C0 – None</option>
+                <option value="C1" selected>C1 – Note if used</option>
+                <option value="C2">C2 – Describe use</option>
+                <option value="C3">C3 – Full log</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">E-Level</label>
+              <select class="form-select" name="enforcement_id">
+                <option value="E0">E0 – None</option>
+                <option value="E1" selected>E1 – No explicit penalty</option>
+                <option value="E2">E2 – Explicit penalty</option>
+                <option value="E3">E3 – Automatic consequence</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn--primary btn--full">Publish to Repository</button>
+        </form>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Editing -->
+  <div class="modal-overlay" id="edit-modal">
+    <div class="modal">
+      <div class="modal__header">
+        <h3>Edit Entry</h3>
+        <button class="modal__close" id="modal-close">✕</button>
+      </div>
+      <input type="hidden" id="edit-id">
+      <div class="form-group">
+        <label class="form-label">Institution</label>
+        <input class="form-input" type="text" id="edit-institution">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Discipline</label>
+        <input class="form-input" type="text" id="edit-discipline">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Raw Policy Text</label>
+        <textarea class="form-textarea" id="edit-policy-text"></textarea>
+      </div>
+      <div class="form-row-3" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--space-4)">
+        <div class="form-group">
+          <label class="form-label">T-Tier</label>
+          <input class="form-input" type="text" id="edit-tier">
+        </div>
+        <div class="form-group">
+          <label class="form-label">C-Level</label>
+          <input class="form-input" type="text" id="edit-clevel">
+        </div>
+        <div class="form-group">
+          <label class="form-label">E-Level</label>
+          <input class="form-input" type="text" id="edit-elevel">
+        </div>
+      </div>
+      <button class="btn btn--primary btn--full" id="save-edit-btn">Save Changes</button>
+    </div>
+  </div>
+
+  <!-- Feedback -->
+  <div id="feedback-banner" class="alert"></div>
+
+  <script>
+    // Check session on load, redirect to login if not admin
+    async function checkAuth() {
+      try {
+        const res  = await fetch('/api/auth/me', { credentials: 'include' });
+        const data = await res.json();
+        if (!res.ok || data.role !== 'admin') {
+          window.location.href = '/login';
+          return false;           // ← signal failure
+        }
+        document.getElementById('admin-email-display').textContent = data.email;
+        return true;              // ← signal success
+      } catch {
+        window.location.href = '/login';
+        return false;
+      }
+    }
+
+    // Logout button
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+      window.location.href = '/login';
+    });
+
+    // Show a message at the bottom right
+    function showFeedback(message, type = 'success') {
+      const banner = document.getElementById('feedback-banner');
+      banner.className = `alert alert--${type} visible`;
+      banner.textContent = message;
+      setTimeout(() => banner.classList.remove('visible'), 3500);
+    }
+
+    // Load all repository entries and render the table
+    let allEntries = [];
+
+    async function loadEntries() {
+      try {
+        const res  = await fetch('/api/admin/entries', { credentials: 'include' });
+        const data = await res.json();
+        if (!res.ok) {
+          showFeedback(data.error || `Server error (${res.status})`, 'error');
+          return;
+        }
+        allEntries = data;
+        renderTable(allEntries);
+      } catch {
+        showFeedback('Could not connect to server.', 'error');
+      }
+    }
+
+    function renderTable(entries) {
+      const tbody = document.getElementById('repo-tbody');
+
+      if (!entries.length) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--ink-4);padding:var(--space-8);">No entries found.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = entries.map(e => `
+        <tr data-id="${e.id}">
+          <td class="td-mono">#${e.id}</td>
+          <td><strong>${e.institution || '—'}</strong></td>
+          <td style="color:var(--ink-3)">${e.discipline || '—'}</td>
+          <td><span class="badge ${tierClass(e.tier_id)}">${e.tier_id || '—'}</span></td>
+          <td><span class="badge badge--ghost">${e.compliance_id || '—'}</span></td>
+          <td><span class="badge badge--ghost">${e.enforcement_id || '—'}</span></td>
+          <td>${statusBadge(e.status)}</td>
+          <td>
+            <div class="row-actions">
+              <a class="edit" onclick="openEdit(${e.id})">Edit</a>
+              <a class="flag" onclick="flagEntry(${e.id}, '${e.status}')">
+                ${e.status === 'flagged' ? 'Unflag' : 'Flag'}
+              </a>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function tierClass(t) {
+      const map = { T0:'tier-T0', T1:'tier-T1', T2:'tier-T2', T3:'tier-T3', T4:'tier-T4', T5:'tier-T5' };
+      return map[t] || 'badge--ghost';
+    }
+
+    function statusBadge(status) {
+      if (status === 'verified') return `<span class="status status--verified">Verified</span>`;
+      if (status === 'flagged')  return `<span class="status status--flagged">Flagged</span>`;
+      return `<span class="status status--pending">Pending</span>`;
+    }
+
+    // Filter table by institution name as user types
+    document.getElementById('filter-input').addEventListener('input', function() {
+      const q       = this.value.toLowerCase();
+      const filtered = allEntries.filter(e =>
+        (e.institution || '').toLowerCase().includes(q) ||
+        (e.discipline  || '').toLowerCase().includes(q)
+      );
+      renderTable(filtered);
+    });
+
+    // Upload new entry form submit
+    document.getElementById('upload-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const form = new FormData(this);
+      const body = Object.fromEntries(form.entries());
+
+      try {
+        const res = await fetch('/api/admin/entries', {
+          method:      'POST',
+          headers:     { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body:        JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (!res.ok) { showFeedback(data.error || 'Upload failed.', 'error'); return; }
+        showFeedback('Entry published to repository.');
+        this.reset();
+        loadEntries();
+      } catch {
+        showFeedback('Could not connect to server.', 'error');
+      }
+    });
+
+    // Open editor which is populated with current values
+    function openEdit(id) {
+      const entry = allEntries.find(e => e.id === id);
+      if (!entry) return;
+
+      document.getElementById('edit-id').value           = entry.id;
+      document.getElementById('edit-institution').value  = entry.institution   || '';
+      document.getElementById('edit-discipline').value   = entry.discipline    || '';
+      document.getElementById('edit-policy-text').value  = entry.policy_text   || '';
+      document.getElementById('edit-tier').value         = entry.tier_id       || '';
+      document.getElementById('edit-clevel').value       = entry.compliance_id || '';
+      document.getElementById('edit-elevel').value       = entry.enforcement_id|| '';
+
+      document.getElementById('edit-modal').classList.add('open');
+    }
+
+    document.getElementById('modal-close').addEventListener('click', () => {
+      document.getElementById('edit-modal').classList.remove('open');
+    });
+
+    // Save edits
+    document.getElementById('save-edit-btn').addEventListener('click', async () => {
+      const id   = document.getElementById('edit-id').value;
+      const body = {
+        institution:    document.getElementById('edit-institution').value,
+        discipline:     document.getElementById('edit-discipline').value,
+        policy_text:    document.getElementById('edit-policy-text').value,
+        tier_id:        document.getElementById('edit-tier').value,
+        compliance_id:  document.getElementById('edit-clevel').value,
+        enforcement_id: document.getElementById('edit-elevel').value,
+      };
+
+      try {
+        const res = await fetch(`/api/admin/entries/${id}`, {
+          method:      'PUT',
+          headers:     { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body:        JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (!res.ok) { showFeedback(data.error || 'Save failed.', 'error'); return; }
+        showFeedback('Entry updated.');
+        document.getElementById('edit-modal').classList.remove('open');
+        loadEntries();
+      } catch {
+        showFeedback('Could not connect to server.', 'error');
+      }
+    });
+
+    // Flag or unflag an entry
+    async function flagEntry(id, currentStatus) {
+      const newStatus = currentStatus === 'flagged' ? 'pending' : 'flagged';
+      try {
+        const res = await fetch(`/api/admin/entries/${id}/status`, {
+          method:      'PATCH',
+          headers:     { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body:        JSON.stringify({ status: newStatus }),
+        });
+        if (!res.ok) { showFeedback('Could not update status.', 'error'); return; }
+        showFeedback(newStatus === 'flagged' ? 'Entry flagged.' : 'Flag removed.');
+        loadEntries();
+      } catch {
+        showFeedback('Could not connect to server.', 'error');
+      }
+    }
+
+    // Export table as CSV
+    document.getElementById('export-btn').addEventListener('click', () => {
+      if (!allEntries.length) { showFeedback('No data to export.', 'warning'); return; }
+      const headers = ['ID','Institution','Discipline','T-Tier','C-Level','E-Level','Status'];
+      const rows    = allEntries.map(e =>
+        [e.id, e.institution, e.discipline, e.tier_id, e.compliance_id, e.enforcement_id, e.status]
+        .map(v => `"${v || ''}"`)
+        .join(',')
+      );
+      const csv  = [headers.join(','), ...rows].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = 'syllabus_repository.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // Init
+    checkAuth().then(isAuthed => { if (isAuthed) loadEntries(); });
+  </script>
+
+</body>
+</html>

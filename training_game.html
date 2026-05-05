@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Syllabus Decoder | Training Game</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+  <nav class="main-nav">
+    <div class="logo">Syllabus Decoder</div>
+    <div class="nav-links">
+      <a href="/decoder">Decoder</a>
+      <a href="/buildsyllabus">Policy Builder</a>
+      <a href="/traininggame">Training Game</a>
+      <a href="/admin">Admin</a>
+    </div>
+  </nav>
+
+  <main class="game-container">
+    <div class="fragment-card">
+        <span class="fragment-id">Fragment #{{ fragment_id }}</span>
+        <blockquote>"{{ policy_text }}"</blockquote>
+    </div>
+
+    <form action="/check-answer" method="POST" class="quiz-form">
+        <div class="input-group">
+            <label>Predict T-Tier</label>
+            <select name="user_t">
+                <option selected disabled>Select Tier</option>
+                <option value="T0">T0 - Prohibited</option>
+                <option value="T1">T1 - Some exceptions</option>
+                <option value="T2">T2 - Ask permission</option>
+                <option value="T3">T3 - Bounded use</option>
+                <option value="T4">T4 - Allowed with documentation</option>
+                <option value="T5">T5 - Open/encouraged</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>Predict C-Level</label>
+            <select name="user_c">
+                <option selected disabled>Select Compliance</option>
+                <option value="C0">C0 - None</option>
+                <option value="C1">C1 - Note if used</option>
+                <option value="C2">C2 - Description of use</option>
+                <option value="C3">C3 - Logs/Step-by-step disclosure</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>Predict E-Level</label>
+            <select name="user_e">
+                <option selected disabled>Select Enforcement</option>
+                <option value="E0">E0 - None</option>
+                <option value="E1">E1 - No explicity penalty</option>
+                <option value="E2">E2 - Explicit penalty</option>
+                <option value="E3">E3 - Automatic/extreme consequence</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn-primary">Submit Analysis</button>
+    </form>
+  </main>
+
+</body>
+</html>

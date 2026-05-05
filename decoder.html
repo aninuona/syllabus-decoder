@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Syllabus Decoder | Decoder Tool</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+  <nav class="main-nav">
+    <div class="logo"><a href="/">Syllabus Decoder</a></div>
+    <div class="nav-links">
+      <a href="/decoder">Decoder</a>
+      <a href="/buildsyllabus">Policy Builder</a>
+      <a href="/traininggame">Training Game</a>
+      <a href="/admin">Admin</a>
+    </div>
+  </nav>
+
+  <main class="tool-container">
+    <h2>Syllabus Decoder</h2>
+    
+    <form action="/decode" method="POST" class="decoder-form">
+        <textarea name="syllabus_text" placeholder="Paste policy text here...">{{ pasted_text }}</textarea>
+        <button type="submit" class="btn-primary">Decode Policy</button>
+    </form>
+
+    <div class="results-grid">
+        <div class="result-box">
+            <span class="label">T-Tier</span>
+            <div class="value">{{ t_tier or '--' }}</div>
+        </div>
+        <div class="result-box">
+            <span class="label">C-Level</span>
+            <div class="value">{{ c_level or '--' }}</div>
+        </div>
+        <div class="result-box">
+            <span class="label">E-Level</span>
+            <div class="value">{{ e_level or '--' }}</div>
+        </div>
+    </div>
+  </main>
+
+</body>
+</html>
