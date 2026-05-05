@@ -5,7 +5,7 @@ _BASE_DIR = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
 _DB_PATH  = os.path.join(_BASE_DIR, "syllabus.db")
 
 class DevelopmentConfig:
-    # Secret key for session security, CHANGE BEFORE FINAL
+    # Secret key for session security, CHANGE
     SECRET_KEY = os.environ.get("SECRET_KEY", "change-me-before-deploying")
     SQLALCHEMY_DATABASE_URI = "sqlite:///" + _DB_PATH
     SQLALCHEMY_TRACK_MODIFICATIONS = False
