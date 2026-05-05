@@ -1,5 +1,5 @@
 flask
-flas-cors
+flask-cors
 flask-sqlalchemy
 pandas
 gunicorn
