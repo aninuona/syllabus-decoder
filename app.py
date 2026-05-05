@@ -224,7 +224,9 @@ def create_app(env: str = None) -> Flask:
     return app
 
 
-# Entry point is python app.py
+# Create app instance at module level (for gunicorn to find it)
+app = create_app()
+
+# Entry point for local development
 if __name__ == "__main__":
-    app = create_app()
     app.run(debug=True)
