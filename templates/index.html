@@ -345,35 +345,61 @@
   <section id="policy-guide" class="dashboard-section">
     <div class="dashboard-header">
         <h2>Policy Guide</h2>
-        <p>Click a card to see the definition for each classification.</p>
+        <p>Click any card to expand the full classification details and triggers.</p>
     </div>
 
     <h3 class="guide-group-title">T: Permissiveness Tiers</h3>
-    <div class="card-grid">
-        <details class="guide-card t0"><summary><strong>T0</strong> Total Prohibition</summary><p>AI use is banned for all work. "Strictly prohibited," "No AI allowed."</p></details>
-        <details class="guide-card t1"><summary><strong>T1</strong> Default Prohibited</summary><p>Not allowed unless explicitly permitted for a specific assignment.</p></details>
-        <details class="guide-card t2"><summary><strong>T2</strong> Permission-Gated</summary><p>Requires prior instructor approval case-by-case.</p></details>
-        <details class="guide-card t3"><summary><strong>T3</strong> Bounded Use</summary><p>Allowed for support (brainstorming, tutoring) but not for drafting work.</p></details>
-        <details class="guide-card t4"><summary><strong>T4</strong> Collaborative</summary><p>Active use encouraged; AI treated as a partner or co-author.</p></details>
-        <details class="guide-card t5"><summary><strong>T5</strong> Mandatory</summary><p>Assignments require the use of AI to be completed.</p></details>
+    <div class="policy-row" id="tier-row" onclick="toggleRow('tier-row')">
+        <div class="modern-card t0">
+            <div class="card-head"><strong>T0</strong> Total Prohibition</div>
+            <div class="card-content">
+                <p class="def">AI use is banned for all relevant work.</p>
+                <p class="trigger"><strong>Triggers:</strong> "Strictly prohibited", "No AI", "AI is plagiarism".</p>
+            </div>
+        </div>
+        <div class="modern-card t1">
+            <div class="card-head"><strong>T1</strong> Default Prohibited</div>
+            <div class="card-content">
+                <p class="def">Not allowed unless explicitly permitted for a specific assignment.</p>
+                <p class="trigger"><strong>Triggers:</strong> "Only in assignments where permitted", "Except when instructed".</p>
+            </div>
+        </div>
+        <div class="modern-card t2">
+            <div class="card-head"><strong>T2</strong> Permission Gated</div>
+            <div class="card-content">
+                <p class="def">Requires prior instructor approval on a case-by-case basis.</p>
+                <p class="trigger"><strong>Triggers:</strong> "Ask me first", "Requires prior permission", "Consult instructor".</p>
+            </div>
+        </div>
+        <div class="modern-card t3">
+            <div class="card-head"><strong>T3</strong> Bounded Use</div>
+            <div class="card-content">
+                <p class="def">Allowed for support (brainstorming, outlining) but not for drafting.</p>
+                <p class="trigger"><strong>Triggers:</strong> "May use to brainstorm", "Support learning", "No AI-generated submissions".</p>
+            </div>
+        </div>
+        <div class="modern-card t4">
+            <div class="card-head"><strong>T4</strong> Collaborative</div>
+            <div class="card-content">
+                <p class="def">Active use encouraged; treated as a partner or co-author.</p>
+                <p class="trigger"><strong>Triggers:</strong> "Use to enhance work", "Collaborate with AI", "AI as a thought partner".</p>
+            </div>
+        </div>
+        <div class="modern-card t5">
+            <div class="card-head"><strong>T5</strong> Mandatory</div>
+            <div class="card-content">
+                <p class="def">Assignments require the use of AI to be completed.</p>
+                <p class="trigger"><strong>Triggers:</strong> "You must use AI", "Required AI workflow".</p>
+            </div>
+        </div>
     </div>
+</section>
 
-    <h3 class="guide-group-title" style="margin-top: 40px;">C: Compliance Levels</h3>
-    <div class="card-grid">
-        <details class="guide-card c0"><summary><strong>C0</strong> None</summary><p>No requirement to disclose or cite AI use.</p></details>
-        <details class="guide-card c1"><summary><strong>C1</strong> Minimal</summary><p>Mention AI use, but no specific format required.</p></details>
-        <details class="guide-card c2"><summary><strong>C2</strong> Structured</summary><p>Formal citation (APA/MLA) and specific attribution of AI's role.</p></details>
-        <details class="guide-card c3"><summary><strong>C3</strong> Full Audit</summary><p>Requires submission of prompt logs, drafts, and reflections.</p></details>
-    </div>
-
-    <h3 class="guide-group-title" style="margin-top: 40px;">E: Enforcement Posture</h3>
-    <div class="card-grid">
-        <details class="guide-card e0"><summary><strong>E0</strong> Trust-Based</summary><p>Relies on student integrity; no mention of monitoring.</p></details>
-        <details class="guide-card e1"><summary><strong>E1</strong> Instructive</summary><p>Warning about hallucinations and risks of academic dishonesty.</p></details>
-        <details class="guide-card e2"><summary><strong>E2</strong> Investigative</summary><p>Explicit mention that AI detectors or audits will be used.</p></details>
-        <details class="guide-card e3"><summary><strong>E3</strong> Zero-Tolerance</summary><p>Automatic referral to student conduct for any suspected violation.</p></details>
-    </div>
-   </section>
+<script>
+function toggleRow(rowId) {
+    document.getElementById(rowId).classList.toggle('is-expanded');
+}
+</script>
 
   <footer>
     SUNY Old Westbury
