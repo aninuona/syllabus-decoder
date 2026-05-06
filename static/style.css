@@ -1267,24 +1267,88 @@ footer {
 .c2, .e2 { border-left: 5px solid #f97316; background: #fff7ed; }
 .c3, .e3 { border-left: 5px solid #ef4444; background: #fef2f2; }
 
-.nav-links {
-    display: flex;
-    align-items: flex-end; /* Aligns links to a common baseline */
-    gap: var(--space-8);
-}
-
-.nav-item-group {
+/* Hero Layout */
+.hero-section {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centers the label over the link */
+    align-items: center;
     text-align: center;
+    padding: 60px 20px;
 }
 
-.nav-label {
+.hero-subtitle-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px; /* Tight gap between subtitle and link */
+    margin-bottom: 48px;
+}
+
+.hero__title {
+    font-size: 3.5rem;
+    font-family: 'DM Serif Display', serif;
+    margin-bottom: 16px;
+}
+
+.hero__subtitle {
+    font-size: 1.2rem;
+    color: var(--ink-3);
+    margin: 0;
+}
+
+.hero__link {
+    font-size: 0.95rem;
+    color: var(--blue);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+/* Navigation Cards */
+.nav-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 300px); /* Increased width for descriptions */
+    gap: 24px;
+    justify-content: center;
+}
+
+.nav-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px 24px;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centers all text inside card */
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.nav-card:hover {
+    border-color: var(--ink);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.05);
+}
+
+.nav-card__label {
     font-size: 0.65rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
     color: var(--ink-4);
-    margin-bottom: 4px; /* Space between label and link */
+    margin-bottom: 12px;
+}
+
+.nav-card__title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 12px;
+}
+
+.nav-card__description {
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--ink-3);
+    margin: 0;
 }
