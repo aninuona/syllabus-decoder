@@ -21,14 +21,14 @@ class SyllabusEntry(db.Model):
 
     id               = db.Column(db.Integer, primary_key=True)
     course           = db.Column(db.String(1000)) 
-    institution      = db.Column(db.String(1000), nullable=False) 
+    institution      = db.Column(db.String(1000)) 
     discipline       = db.Column(db.String(500))  
-    policy_text      = db.Column(db.Text,        nullable=False)
+    policy_text      = db.Column(db.Text)
     contributor      = db.Column(db.String(1000))  # 
     rights           = db.Column(db.String(1000))  #
-    tier_id          = db.Column(db.String(5),   nullable=False)
-    compliance_id    = db.Column(db.String(5),   nullable=False)
-    enforcement_id   = db.Column(db.String(5),   nullable=False)
+    tier_id          = db.Column(db.String(5))
+    compliance_id    = db.Column(db.String(5))
+    enforcement_id   = db.Column(db.String(5))
     notes            = db.Column(db.Text)
     school_level     = db.Column(db.String(100))
     institution_type = db.Column(db.String(100))
