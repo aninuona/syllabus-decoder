@@ -1352,3 +1352,94 @@ footer {
     color: var(--ink-3);
     margin: 0;
 }
+
+/* --- POLICY GUIDE GLOW CARDS --- */
+.guide-row-header {
+    text-align: center;
+    margin: 60px 0 24px;
+}
+
+.guide-row-header h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 4px;
+}
+
+.guide-row-header p {
+    font-size: 1rem;
+    color: var(--ink-3);
+    margin: 0;
+}
+
+/* Row Layouts */
+.glow-card-row {
+    display: grid;
+    gap: 20px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+/* Force 6 columns for T, 4 columns for C and E on Desktop */
+@media (min-width: 1024px) {
+    .glow-card-row.row-6 { grid-template-columns: repeat(6, 1fr); }
+    .glow-card-row.row-4 { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* The Glow Card itself */
+.glow-card {
+    background: var(--surface);
+    /* Creates the colored outline based on inline variables */
+    border: 2px solid var(--border-color); 
+    border-radius: 16px; /* Matches Nav Cards */
+    padding: 32px 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    /* glowy aura */
+    box-shadow: 0 4px 20px var(--glow-color);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.glow-card:hover {
+    transform: translateY(-4px);
+    /* Glow intensifies on hover */
+    box-shadow: 0 8px 30px var(--glow-color);
+}
+
+/* Card Default State (Name \n Title) */
+.glow-card__title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.4;
+    transition: margin 0.3s ease;
+}
+
+/* Card Expanded State ( Definition) */
+.glow-card__content {
+    max-height: 0;
+    opacity: 0;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--ink-2);
+    transition: all 0.4s ease;
+}
+
+/* When the row is clicked, expand the content inside every card in that row */
+.glow-card-row.is-expanded .glow-card__content {
+    max-height: 400px; /* Gives enough room for the text to open */
+    opacity: 1;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+}
+
+/* Mobile Stack */
+@media (max-width: 1023px) {
+    .glow-card-row { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+}
