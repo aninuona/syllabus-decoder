@@ -218,6 +218,16 @@ def create_app(env: str = None) -> Flask:
     with app.app_context():
         try:
             db.create_all()
+            
+            # Auto-create admin account from environment variable if no users exist
+            from models import User
+            if User.query.first() is None:
+                admin_email = os.environ.get("ADMIN_EMAIL")
+                if admin_email:
+                    admin = User(email=admin_email, password_hash="UNSET", role="admin")
+                    db.session.add(admin)
+                    db.session.commit()
+                    print(f"✓ Auto-created admin account: {admin_email}")
         except Exception as ex:
             print(f"WARNING: Could not auto-create tables: {ex}")
 
