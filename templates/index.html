@@ -341,62 +341,91 @@
     </div>
   </section>
 
-  <section id="policy-guide" class="dashboard-section">
-    <div class="dashboard-header">
-        <h2>Policy Guide</h2>
-        <p>Click any card to expand the full classification details and triggers.</p>
+  <section id="policy-guide" class="dashboard-section" style="max-width: 1300px; margin: 80px auto; padding: 0 20px;">
+    
+    <div class="guide-row-header">
+        <h3>T: Permissiveness Tier</h3>
+        <p>How much AI usage is allowed</p>
+    </div>
+    <div class="glow-card-row row-6" id="row-t" onclick="toggleRow('row-t')">
+        <div class="glow-card" style="--glow-color: rgba(239, 68, 68, 0.4); --border-color: #ef4444;">
+            <div class="glow-card__title">T0<br>Total prohibition</div>
+            <div class="glow-card__content">AI use is banned (or functionally banned) for the course or for all relevant work.</div>
+        </div>
+        <div class="glow-card" style="--glow-color: rgba(249, 115, 22, 0.4); --border-color: #f97316;">
+            <div class="glow-card__title">T1<br>Default prohibited, exceptions only</div>
+            <div class="glow-card__content">AI is not allowed unless explicitly permitted for a specific assignment or scenario.</div>
+        </div>
+        <div class="glow-card" style="--glow-color: rgba(245, 158, 11, 0.4); --border-color: #f59e0b;">
+            <div class="glow-card__title">T2<br>Permission-gated (ask first)</div>
+            <div class="glow-card__content">AI may be allowed, but students must get prior instructor approval (case-by-case).</div>
+        </div>
+        <div class="glow-card" style="--glow-color: rgba(132, 204, 22, 0.4); --border-color: #84cc16;">
+            <div class="glow-card__title">T3<br>Bounded use allowed</div>
+            <div class="glow-card__content">AI allowed for limited support (brainstorming, outlining, clarity, proofreading), but not to "do the work."</div>
+        </div>
+        <div class="glow-card" style="--glow-color: rgba(34, 197, 94, 0.4); --border-color: #22c55e;">
+            <div class="glow-card__title">T4<br>Active collaboration allowed</div>
+            <div class="glow-card__content">AI use is actively encouraged; AI is treated as a thought partner, sounding board, or co-author.</div>
+        </div>
+        <div class="glow-card" style="--glow-color: rgba(16, 185, 129, 0.4); --border-color: #10b981;">
+            <div class="glow-card__title">T5<br>Mandatory use</div>
+            <div class="glow-card__content">Assignments require the use of AI to be completed successfully.</div>
+        </div>
     </div>
 
-    <h3 class="guide-group-title">T: Permissiveness Tiers</h3>
-    <div class="policy-row" id="tier-row" onclick="toggleRow('tier-row')">
-        <div class="modern-card t0">
-            <div class="card-head"><strong>T0</strong> Total Prohibition</div>
-            <div class="card-content">
-                <p class="def">AI use is banned for all relevant work.</p>
-                <p class="trigger"><strong>Triggers:</strong> "Strictly prohibited", "No AI", "AI is plagiarism".</p>
-            </div>
+    <div class="guide-row-header">
+        <h3>C: Compliance</h3>
+        <p>How much documentation is required</p>
+    </div>
+    <div class="glow-card-row row-4" id="row-c" onclick="toggleRow('row-c')">
+        <div class="glow-card" style="--glow-color: rgba(34, 197, 94, 0.4); --border-color: #22c55e;">
+            <div class="glow-card__title">C0<br>None</div>
+            <div class="glow-card__content">No requirement to disclose or cite AI use.</div>
         </div>
-        <div class="modern-card t1">
-            <div class="card-head"><strong>T1</strong> Default Prohibited</div>
-            <div class="card-content">
-                <p class="def">Not allowed unless explicitly permitted for a specific assignment.</p>
-                <p class="trigger"><strong>Triggers:</strong> "Only in assignments where permitted", "Except when instructed".</p>
-            </div>
+        <div class="glow-card" style="--glow-color: rgba(245, 158, 11, 0.4); --border-color: #f59e0b;">
+            <div class="glow-card__title">C1<br>Minimal</div>
+            <div class="glow-card__content">Brief mention of AI use is required, but no specific citation format is mandated.</div>
         </div>
-        <div class="modern-card t2">
-            <div class="card-head"><strong>T2</strong> Permission Gated</div>
-            <div class="card-content">
-                <p class="def">Requires prior instructor approval on a case-by-case basis.</p>
-                <p class="trigger"><strong>Triggers:</strong> "Ask me first", "Requires prior permission", "Consult instructor".</p>
-            </div>
+        <div class="glow-card" style="--glow-color: rgba(249, 115, 22, 0.4); --border-color: #f97316;">
+            <div class="glow-card__title">C2<br>Structured</div>
+            <div class="glow-card__content">Formal citation (APA/MLA) and specific attribution of AI's role is required.</div>
         </div>
-        <div class="modern-card t3">
-            <div class="card-head"><strong>T3</strong> Bounded Use</div>
-            <div class="card-content">
-                <p class="def">Allowed for support (brainstorming, outlining) but not for drafting.</p>
-                <p class="trigger"><strong>Triggers:</strong> "May use to brainstorm", "Support learning", "No AI-generated submissions".</p>
-            </div>
-        </div>
-        <div class="modern-card t4">
-            <div class="card-head"><strong>T4</strong> Collaborative</div>
-            <div class="card-content">
-                <p class="def">Active use encouraged; treated as a partner or co-author.</p>
-                <p class="trigger"><strong>Triggers:</strong> "Use to enhance work", "Collaborate with AI", "AI as a thought partner".</p>
-            </div>
-        </div>
-        <div class="modern-card t5">
-            <div class="card-head"><strong>T5</strong> Mandatory</div>
-            <div class="card-content">
-                <p class="def">Assignments require the use of AI to be completed.</p>
-                <p class="trigger"><strong>Triggers:</strong> "You must use AI", "Required AI workflow".</p>
-            </div>
+        <div class="glow-card" style="--glow-color: rgba(239, 68, 68, 0.4); --border-color: #ef4444;">
+            <div class="glow-card__title">C3<br>Full Audit</div>
+            <div class="glow-card__content">Requires submission of prompt logs, drafts, and comprehensive reflections on AI use.</div>
         </div>
     </div>
+
+    <div class="guide-row-header">
+        <h3>E: Enforcement</h3>
+        <p>How failure to comply is handled</p>
+    </div>
+    <div class="glow-card-row row-4" id="row-e" onclick="toggleRow('row-e')">
+        <div class="glow-card" style="--glow-color: rgba(34, 197, 94, 0.4); --border-color: #22c55e;">
+            <div class="glow-card__title">E0<br>Trust-Based</div>
+            <div class="glow-card__content">Relies on student integrity; no explicit mention of monitoring or detection tools.</div>
+        </div>
+        <div class="glow-card" style="--glow-color: rgba(245, 158, 11, 0.4); --border-color: #f59e0b;">
+            <div class="glow-card__title">E1<br>Instructive</div>
+            <div class="glow-card__content">Warns about AI hallucinations and the general risks of academic dishonesty.</div>
+        </div>
+        <div class="glow-card" style="--glow-color: rgba(249, 115, 22, 0.4); --border-color: #f97316;">
+            <div class="glow-card__title">E2<br>Investigative</div>
+            <div class="glow-card__content">Explicitly mentions that AI detectors, manual audits, or version history will be used.</div>
+        </div>
+        <div class="glow-card" style="--glow-color: rgba(239, 68, 68, 0.4); --border-color: #ef4444;">
+            <div class="glow-card__title">E3<br>Zero-Tolerance</div>
+            <div class="glow-card__content">Automatic referral to the student conduct office for any suspected violation.</div>
+        </div>
+    </div>
+
 </section>
 
 <script>
-function toggleRow(rowId) {
-    document.getElementById(rowId).classList.toggle('is-expanded');
+function toggleRow(id) {
+    // Toggles the expansion state on the clicked row
+    document.getElementById(id).classList.toggle('is-expanded');
 }
 </script>
 
