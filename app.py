@@ -342,8 +342,8 @@ def create_app(env: str = None) -> Flask:
                         db.session.commit()
                         print(f"✓ Auto-seeded {added} syllabus entries.")
         
-        except Exception as ex:
-            print(f"WARNING: Could not auto-create tables: {ex}")
+            except Exception as ex:
+                print(f"WARNING: Could not auto-create tables: {ex}")
 
     return app
 
