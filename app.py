@@ -236,6 +236,62 @@ def create_app(env: str = None) -> Flask:
             except Exception as admin_ex:
                 print(f"WARNING: Could not create admin account: {admin_ex}")
                 db.session.rollback()
+            
+            # Auto-seed builder questions if empty
+            from models import BuilderQuestion
+            try:
+                if BuilderQuestion.query.first() is None:
+                    from seed_builder_questions import QUESTIONS
+                    for q_data in QUESTIONS:
+                        q = BuilderQuestion(**q_data)
+                        db.session.add(q)
+                    db.session.commit()
+                    print(f"✓ Auto-seeded {len(QUESTIONS)} builder questions")
+            except Exception as builder_ex:
+                print(f"WARNING: Could not seed builder questions: {builder_ex}")
+                db.session.rollback()
+            
+            # Auto-seed syllabus entries from CSV if empty
+            from models import SyllabusEntry
+            try:
+                if SyllabusEntry.query.first() is None:
+                    import csv
+                    csv_path = os.path.join(os.path.dirname(__file__), 'syllabus.csv')
+                    if os.path.exists(csv_path):
+                        with open(csv_path, 'r', encoding='utf-8') as csvfile:
+                            reader = csv.DictReader(csvfile)
+                            added = 0
+                            for row in reader:
+                                if not row.get('Institution') or not row.get('Policy in the Syllabus'):
+                                    continue
+                                entry = SyllabusEntry(
+                                    course=row.get('Course &', '').strip() or None,
+                                    institution=row.get('Institution', '').strip(),
+                                    discipline=row.get('Discipline', '').strip() or None,
+                                    policy_text=row.get('Policy in the Syllabus', '').strip(),
+                                    contributor=row.get('Contributor', '').strip() or None,
+                                    rights=row.get('Rights for Reuse', '').strip() or None,
+                                    tier_id=row.get('Tier', 'T2').strip(),
+                                    compliance_id=row.get('Compliance', 'C0').strip(),
+                                    enforcement_id=row.get('Enforcement', 'E0').strip(),
+                                    notes=row.get('Notes', '').strip() or None,
+                                    school_level=row.get('School Level', '').strip() or None,
+                                    institution_type=row.get('Institution Type', '').strip() or None,
+                                    state_region=row.get('State/Region', '').strip() or None,
+                                    country=row.get('Country', '').strip() or None,
+                                    link=row.get('Link to Institution', '').strip() or None,
+                                    status='verified',
+                                )
+                                db.session.add(entry)
+                                added += 1
+                        db.session.commit()
+                        print(f"✓ Auto-seeded {added} syllabus entries from CSV")
+                    else:
+                        print(f"WARNING: syllabus.csv not found at {csv_path}")
+            except Exception as syllabus_ex:
+                print(f"WARNING: Could not seed syllabus entries: {syllabus_ex}")
+                db.session.rollback()
+        
         except Exception as ex:
             print(f"WARNING: Could not auto-create tables: {ex}")
 
