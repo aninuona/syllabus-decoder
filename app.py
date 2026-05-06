@@ -295,7 +295,6 @@ def create_app(env: str = None) -> Flask:
                     import csv
                     csv_path = os.path.join(os.path.dirname(__file__), 'syllabus.csv')
                     
-                    # Defined max length 1000 once for the whole loop
                     def safe_str(val, max_len=1000):
                         s = (val or '').strip()
                         return s[:max_len] if len(s) > max_len else (s or None)
@@ -314,12 +313,11 @@ def create_app(env: str = None) -> Flask:
                                         skipped += 1
                                         continue
                                     
-                                    # Apply consistently to all fields with DB limits
                                     entry = SyllabusEntry(
                                         course=safe_str(row.get('Course &'), 1000),
                                         institution=safe_str(institution_raw, 1000),
                                         discipline=safe_str(row.get('Discipline'), 500),
-                                        policy_text=policy_text, # No safe_str needed for Text
+                                        policy_text=policy_text,
                                         contributor=safe_str(row.get('Contributor'), 1000),
                                         rights=safe_str(row.get('Rights for Reuse'), 1000),
                                         tier_id=safe_str(row.get('Tier', 'T2'), 5),
@@ -341,13 +339,13 @@ def create_app(env: str = None) -> Flask:
                         
                         db.session.commit()
                         print(f"✓ Auto-seeded {added} syllabus entries.")
-                        
-                except Exception as csv_ex:
+            
+            except Exception as csv_ex:
                 print(f"WARNING: Failed to seed CSV: {csv_ex}")
                 db.session.rollback()
         
-            except Exception as ex:
-                print(f"WARNING: Could not auto-create tables: {ex}")
+        except Exception as ex:
+            print(f"WARNING: Could not auto-create tables: {ex}")
 
     return app
 
