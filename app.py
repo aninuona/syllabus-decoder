@@ -3,6 +3,7 @@ import sys
 import random
 from flask import Flask, jsonify, render_template, request, redirect, session
 from flask_cors import CORS
+from flask_migrate import Migrate
 
 sys.path.insert(0, os.path.dirname(__file__))
 
@@ -26,6 +27,8 @@ def create_app(env: str = None) -> Flask:
     ])
 
     db.init_app(app)
+
+    migrate = Migrate(app, db)
 
     # Register API blueprints
     from routes.auth    import auth_bp
