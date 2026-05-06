@@ -285,13 +285,19 @@ def create_app(env: str = None) -> Flask:
             except Exception as builder_ex:
                 print(f"WARNING: Could not seed builder questions: {builder_ex}")
                 db.session.rollback()
-            
+    
             # Auto-seed syllabus entries from CSV if empty
             from models import SyllabusEntry
             try:
                 if SyllabusEntry.query.first() is None:
                     import csv
                     csv_path = os.path.join(os.path.dirname(__file__), 'syllabus.csv')
+                    
+                    # Defined max length 1000 once for the whole loop
+                    def safe_str(val, max_len=1000):
+                        s = (val or '').strip()
+                        return s[:max_len] if len(s) > max_len else (s or None)
+
                     if os.path.exists(csv_path):
                         with open(csv_path, 'r', encoding='utf-8-sig') as csvfile:
                             reader = csv.DictReader(csvfile)
@@ -299,26 +305,21 @@ def create_app(env: str = None) -> Flask:
                             skipped = 0
                             for row_num, row in enumerate(reader, start=2):
                                 try:
-                                    # Skip if missing required fields
-                                    institution = row.get('Institution', '').strip()
+                                    institution_raw = row.get('Institution', '').strip()
                                     policy_text = row.get('Policy in the Syllabus', '').strip()
                                     
-                                    if not institution or not policy_text:
+                                    if not institution_raw or not policy_text:
                                         skipped += 1
                                         continue
                                     
-                                    # Helper function to safely truncate long strings
-                                    def safe_str(val, max_len):
-                                        s = (val or '').strip()
-                                        return s[:max_len] if s and len(s) > max_len else (s or None)
-                                    
+                                    # Apply consistently to all fields with DB limits
                                     entry = SyllabusEntry(
-                                        course=safe_str(row.get('Course &'), 500),
-                                        institution=safe_str(row.get('Institution'), 500),
-                                        discipline=safe_str(row.get('Discipline'), 300),
-                                        policy_text=policy_text,
-                                        contributor=safe_str(row.get('Contributor'), 500),
-                                        rights=safe_str(row.get('Rights for Reuse'), 500),
+                                        course=safe_str(row.get('Course &'), 1000),
+                                        institution=safe_str(institution_raw, 1000),
+                                        discipline=safe_str(row.get('Discipline'), 500),
+                                        policy_text=policy_text, # No safe_str needed for Text
+                                        contributor=safe_str(row.get('Contributor'), 1000),
+                                        rights=safe_str(row.get('Rights for Reuse'), 1000),
                                         tier_id=safe_str(row.get('Tier', 'T2'), 5),
                                         compliance_id=safe_str(row.get('Compliance', 'C0'), 5),
                                         enforcement_id=safe_str(row.get('Enforcement', 'E0'), 5),
@@ -337,14 +338,7 @@ def create_app(env: str = None) -> Flask:
                                     continue
                         
                         db.session.commit()
-                        print(f"✓ Auto-seeded {added} syllabus entries from CSV (skipped {skipped})")
-                    else:
-                        print(f"WARNING: syllabus.csv not found at {csv_path}")
-            except Exception as syllabus_ex:
-                print(f"WARNING: Could not seed syllabus entries: {syllabus_ex}")
-                import traceback
-                traceback.print_exc()
-                db.session.rollback()
+                        print(f"✓ Auto-seeded {added} syllabus entries.")
         
         except Exception as ex:
             print(f"WARNING: Could not auto-create tables: {ex}")
