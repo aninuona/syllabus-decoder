@@ -312,7 +312,7 @@
     <!-- Main Heatmap -->
     <div class="viz-card">
       <h3>Policy Classification Heatmap (T-Tier × C-Level × E-Level)</h3>
-      <p>Each cell shows the count of policies. Warm colors = permissive (low T, high C/E). Cool colors = restrictive (high T, low C/E).</p>
+      <p>Each cell shows the count of policies. Warm colors = permissive (high T, low C/E). Cool colors = restrictive (low T, high C/E).</p>
       <div class="heatmap-wrapper">
         <table class="heatmap-table" id="main-heatmap">
           <thead>
@@ -441,17 +441,14 @@
     function colorizeCell(tTier, cLevel, eLevel, count) {
       if (count === 0) return 'cell-neutral';
       
-      // Calculate "permissiveness" score
-      // Low T (0-1) + High C (2-3) + High E (1-2) = warm
-      // High T (4-5) + Low C (0-1) + Low E (0) = cool
+      // Calculate permissiveness score
+      // High T (4-5) + High C (2-3) + High E (1-2) = warm
+      // Low T (0-1) + Low C (0-1) + Low E (0) = cool
       
       const tValue = parseInt(tTier[1]); // 0-5
       const cValue = parseInt(cLevel[1]); // 0-3
       const eValue = parseInt(eLevel[1]); // 0-2
       
-      // Score: lower T is better (warm), higher T is worse (cool)
-      // Higher C is better (warm), lower C is worse (cool)
-      // Higher E is better (warm), lower E is worse (cool)
       const score = -tValue + cValue + eValue; // Range: -5 to 10
       
       if (score >= 7) return 'cell-warm-5';
