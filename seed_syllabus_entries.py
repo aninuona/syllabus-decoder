@@ -23,38 +23,51 @@ def seed():
             return
         
         try:
-            with open('syllabus.csv', 'r', encoding='utf-8') as csvfile:
+            # safely truncate long strings
+            def safe_str(val, max_len):
+                s = (val or '').strip()
+                return s[:max_len] if s and len(s) > max_len else (s or None)
+
+            #  encoding  'utf-8-sig' to handle BOM characters from Excel exports
+            with open('syllabus.csv', 'r', encoding='utf-8-sig') as csvfile:
                 reader = csv.DictReader(csvfile)
                 added = 0
+                skipped = 0
                 
                 for row in reader:
-                    # Skip empty rows
-                    if not row.get('Institution') or not row.get('Policy in the Syllabus'):
+                    # extract requirements
+                    institution = row.get('Institution', '').strip()
+                    policy_text = row.get('Policy in the Syllabus', '').strip()
+
+                    # Skip empty rows based on variable checks
+                    if not institution or not policy_text:
+                        skipped += 1
                         continue
                     
+                    # Truncating variables to match SQLAlchemy limits in models.py
                     entry = SyllabusEntry(
-                        course=row.get('Course &', '').strip() or None,
-                        institution=row.get('Institution', '').strip(),
-                        discipline=row.get('Discipline', '').strip() or None,
-                        policy_text=row.get('Policy in the Syllabus', '').strip(),
-                        contributor=row.get('Contributor', '').strip() or None,
-                        rights=row.get('Rights for Reuse', '').strip() or None,
-                        tier_id=row.get('Tier', 'T2').strip(),
-                        compliance_id=row.get('Compliance', 'C0').strip(),
-                        enforcement_id=row.get('Enforcement', 'E0').strip(),
+                        course=safe_str(row.get('Course &'), 1000),
+                        institution=safe_str(row.get('Institution'), 1000),
+                        discipline=safe_str(row.get('Discipline'), 500),
+                        policy_text=policy_text,
+                        contributor=safe_str(row.get('Contributor'), 1000),
+                        rights=safe_str(row.get('Rights for Reuse'), 1000),
+                        tier_id=safe_str(row.get('Tier', 'T2'), 5),
+                        compliance_id=safe_str(row.get('Compliance', 'C0'), 5),
+                        enforcement_id=safe_str(row.get('Enforcement', 'E0'), 5),
                         notes=row.get('Notes', '').strip() or None,
-                        school_level=row.get('School Level', '').strip() or None,
-                        institution_type=row.get('Institution Type', '').strip() or None,
-                        state_region=row.get('State/Region', '').strip() or None,
-                        country=row.get('Country', '').strip() or None,
-                        link=row.get('Link to Institution', '').strip() or None,
+                        school_level=safe_str(row.get('School Level'), 100),
+                        institution_type=safe_str(row.get('Institution Type'), 100),
+                        state_region=safe_str(row.get('State/Region'), 100),
+                        country=safe_str(row.get('Country'), 100),
+                        link=safe_str(row.get('Link to Institution'), 500),
                         status='verified',
                     )
                     db.session.add(entry)
                     added += 1
                 
                 db.session.commit()
-                print(f"✓ Seeded {added} syllabus entries from CSV.")
+                print(f"✓ Seeded {added} syllabus entries from CSV. Skipped {skipped} empty rows.")
         
         except FileNotFoundError:
             print("✗ syllabus.csv not found.")
