@@ -341,6 +341,10 @@ def create_app(env: str = None) -> Flask:
                         
                         db.session.commit()
                         print(f"✓ Auto-seeded {added} syllabus entries.")
+                        
+                except Exception as csv_ex:
+                print(f"WARNING: Failed to seed CSV: {csv_ex}")
+                db.session.rollback()
         
             except Exception as ex:
                 print(f"WARNING: Could not auto-create tables: {ex}")
