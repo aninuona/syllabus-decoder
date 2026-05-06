@@ -259,17 +259,13 @@ def create_app(env: str = None) -> Flask:
             # Auto-create admin account from environment variable if no users exist
             from models import User
             try:
-                existing_users = User.query.first()
-                if not existing_users:
+                if not User.query.first():
                     admin_email = os.environ.get("ADMIN_EMAIL", "").strip().lower()
                     if admin_email:
                         admin = User(email=admin_email, password_hash="UNSET", role="admin")
                         db.session.add(admin)
-                        db.session.flush()
                         db.session.commit()
                         print(f"✓ Auto-created admin account: {admin_email}")
-                    else:
-                        print("WARNING: ADMIN_EMAIL environment variable not set")
             except Exception as admin_ex:
                 print(f"WARNING: Could not create admin account: {admin_ex}")
                 db.session.rollback()
@@ -303,26 +299,29 @@ def create_app(env: str = None) -> Flask:
                         with open(csv_path, 'r', encoding='utf-8-sig') as csvfile:
                             reader = csv.DictReader(csvfile)
                             added = 0
-                            skipped = 0
                             for row_num, row in enumerate(reader, start=2):
                                 try:
-                                    institution_raw = row.get('Institution', '').strip()
-                                    policy_text = row.get('Policy in the Syllabus', '').strip()
+                                    inst_raw = row.get('Institution', '').strip()
+                                    p_text = row.get('Policy in the Syllabus', '').strip()
                                     
-                                    if not institution_raw or not policy_text:
-                                        skipped += 1
+                                    if not inst_raw or not p_text:
                                         continue
                                     
+                                    # Ensure defaults if the CSV cell is an empty string
+                                    t_val = row.get('Tier', '').strip() or 'T2'
+                                    c_val = row.get('Compliance', '').strip() or 'C0'
+                                    e_val = row.get('Enforcement', '').strip() or 'E0'
+
                                     entry = SyllabusEntry(
                                         course=safe_str(row.get('Course &'), 1000),
-                                        institution=safe_str(institution_raw, 1000),
+                                        institution=safe_str(inst_raw, 1000),
                                         discipline=safe_str(row.get('Discipline'), 500),
-                                        policy_text=policy_text,
+                                        policy_text=p_text,
                                         contributor=safe_str(row.get('Contributor'), 1000),
                                         rights=safe_str(row.get('Rights for Reuse'), 1000),
-                                        tier_id=safe_str(row.get('Tier', 'T2'), 5),
-                                        compliance_id=safe_str(row.get('Compliance', 'C0'), 5),
-                                        enforcement_id=safe_str(row.get('Enforcement', 'E0'), 5),
+                                        tier_id=safe_str(t_val, 5),
+                                        compliance_id=safe_str(c_val, 5),
+                                        enforcement_id=safe_str(e_val, 5),
                                         notes=row.get('Notes', '').strip() or None,
                                         school_level=safe_str(row.get('School Level'), 100),
                                         institution_type=safe_str(row.get('Institution Type'), 100),
