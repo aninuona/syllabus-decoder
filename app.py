@@ -206,6 +206,31 @@ def create_app(env: str = None) -> Flask:
     def health():
         return jsonify({"status": "ok", "message": "Syllabus Decoder API is running."}), 200
 
+    @app.route("/api/debug/entries-count")
+    def debug_entries_count():
+        # Debug endpoint to check how many entries exist in database
+        try:
+            from models import SyllabusEntry
+            total = SyllabusEntry.query.count()
+            verified = SyllabusEntry.query.filter_by(status="verified").count()
+            pending = SyllabusEntry.query.filter_by(status="pending").count()
+            flagged = SyllabusEntry.query.filter_by(status="flagged").count()
+            
+            # Get a sample entry if one exists
+            sample = SyllabusEntry.query.first()
+            sample_data = sample.to_dict() if sample else None
+            
+            return jsonify({
+                "total": total,
+                "verified": verified,
+                "pending": pending,
+                "flagged": flagged,
+                "sample_entry": sample_data,
+                "database_type": "postgresql" if "postgresql" in str(app.config.get("SQLALCHEMY_DATABASE_URI", "")) else "sqlite"
+            }), 200
+        except Exception as e:
+            return jsonify({"error": str(e), "type": type(e).__name__}), 500
+
     @app.errorhandler(404)
     def not_found(e):
         return jsonify({"error": "Not found."}), 404
