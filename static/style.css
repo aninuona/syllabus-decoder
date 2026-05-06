@@ -475,12 +475,24 @@ a:hover { color: var(--blue-hover); }
 
 /* tables */
 
+
+
 .table-wrap {
   width: 100%;
-  overflow-x: auto;
-  border-radius: var(--r-xl);
+  max-height: 500px; /* Adjust  */
+  overflow-y: auto;  /* Enable vertical scroll */
+  overflow-x: auto;  /*  horizontal scroll for small screens */
   border: 1px solid var(--border);
+  border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
+}
+
+.admin-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: var(--surface-2); /*  background to cover scrolling text */
+  box-shadow: inset 0 -1px 0 var(--border); /* Visual separator for the header */
 }
 
 table {
