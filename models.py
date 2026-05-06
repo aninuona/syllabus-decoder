@@ -16,16 +16,17 @@ class User(db.Model):
 
 
 class SyllabusEntry(db.Model):
-    # Real syllabus snippets collected from institutions, managed via admin console
+    # syllabi collected from institutions, managed via admin console
     __tablename__ = "syllabus_entries"
 
     id               = db.Column(db.Integer, primary_key=True)
-    course           = db.Column(db.String(500))
-    institution      = db.Column(db.String(500), nullable=False)
-    discipline       = db.Column(db.String(300))
+    class SyllabusEntry(db.Model):
+    course           = db.Column(db.String(1000)) 
+    institution      = db.Column(db.String(1000), nullable=False) 
+    discipline       = db.Column(db.String(500))  
     policy_text      = db.Column(db.Text,        nullable=False)
-    contributor      = db.Column(db.String(500))
-    rights           = db.Column(db.String(500))
+    contributor      = db.Column(db.String(1000))  # 
+    rights           = db.Column(db.String(1000))  #
     tier_id          = db.Column(db.String(5),   nullable=False)
     compliance_id    = db.Column(db.String(5),   nullable=False)
     enforcement_id   = db.Column(db.String(5),   nullable=False)
