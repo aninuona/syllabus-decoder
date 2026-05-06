@@ -221,13 +221,21 @@ def create_app(env: str = None) -> Flask:
             
             # Auto-create admin account from environment variable if no users exist
             from models import User
-            if User.query.first() is None:
-                admin_email = os.environ.get("ADMIN_EMAIL")
-                if admin_email:
-                    admin = User(email=admin_email, password_hash="UNSET", role="admin")
-                    db.session.add(admin)
-                    db.session.commit()
-                    print(f"✓ Auto-created admin account: {admin_email}")
+            try:
+                existing_users = User.query.first()
+                if not existing_users:
+                    admin_email = os.environ.get("ADMIN_EMAIL", "").strip().lower()
+                    if admin_email:
+                        admin = User(email=admin_email, password_hash="UNSET", role="admin")
+                        db.session.add(admin)
+                        db.session.flush()
+                        db.session.commit()
+                        print(f"✓ Auto-created admin account: {admin_email}")
+                    else:
+                        print("WARNING: ADMIN_EMAIL environment variable not set")
+            except Exception as admin_ex:
+                print(f"WARNING: Could not create admin account: {admin_ex}")
+                db.session.rollback()
         except Exception as ex:
             print(f"WARNING: Could not auto-create tables: {ex}")
 
