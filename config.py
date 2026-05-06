@@ -12,23 +12,23 @@ class DevelopmentConfig:
     DEBUG = True
     SESSION_COOKIE_SAMESITE = "Lax"
     SESSION_COOKIE_HTTPONLY = True
-    SESSION_COOKIE_SECURE = False   # False for http localhostsqlite3 syllabus.db "PRAGMA table_info(syllabus_entries);"
-
-    # SQLALCHEMY_DATABASE_URI = "sqlite:///syllabus.db"
-
-    # Disable modification tracking to save memory
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-
-    DEBUG = True
+    SESSION_COOKIE_SECURE = False
 
 
 class ProductionConfig:
-    SECRET_KEY = os.environ.get("SECRET_KEY")
-    # For Neon: DATABASE_URL already starts with "postgresql://"
-    database_url = os.environ.get("DATABASE_URL", "")
+    SECRET_KEY = os.environ.get("SECRET_KEY", "change-me-before-deploying")
+    
+    # Try to use DATABASE_URL if provided (e.g., from PostgreSQL service on Render)
+    database_url = os.environ.get("DATABASE_URL", "").strip()
     if database_url.startswith("postgres://"):
         database_url = database_url.replace("postgres://", "postgresql://", 1)
-    SQLALCHEMY_DATABASE_URI = database_url
+    
+    # If DATABASE_URL not set, fall back to SQLite
+    if database_url:
+        SQLALCHEMY_DATABASE_URI = database_url
+    else:
+        SQLALCHEMY_DATABASE_URI = "sqlite:///" + _DB_PATH
+    
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     DEBUG = False
     SESSION_COOKIE_SECURE = True
