@@ -20,12 +20,12 @@ class SyllabusEntry(db.Model):
     __tablename__ = "syllabus_entries"
 
     id               = db.Column(db.Integer, primary_key=True)
-    course           = db.Column(db.String(300))
-    institution      = db.Column(db.String(300), nullable=False)
-    discipline       = db.Column(db.String(200))
+    course           = db.Column(db.String(500))
+    institution      = db.Column(db.String(500), nullable=False)
+    discipline       = db.Column(db.String(300))
     policy_text      = db.Column(db.Text,        nullable=False)
-    contributor      = db.Column(db.String(200))
-    rights           = db.Column(db.String(200))
+    contributor      = db.Column(db.String(500))
+    rights           = db.Column(db.String(500))
     tier_id          = db.Column(db.String(5),   nullable=False)
     compliance_id    = db.Column(db.String(5),   nullable=False)
     enforcement_id   = db.Column(db.String(5),   nullable=False)
