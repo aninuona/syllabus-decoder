@@ -1218,3 +1218,51 @@ footer {
     gap: var(--space-4);
   }
 }
+
+.guide-group-title {
+    font-size: 1.2rem;
+    color: var(--ink-2);
+    margin-bottom: 15px;
+    border-bottom: 2px solid var(--surface-3);
+    padding-bottom: 5px;
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.guide-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.guide-card summary {
+    list-style: none;
+    font-size: 0.95rem;
+}
+
+.guide-card p {
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: var(--ink-2);
+}
+
+/* TIER COLORING: Red (Prohibited) to Green (Mandatory) */
+.t0 { border-left: 5px solid #ef4444; background: #fef2f2; }
+.t1 { border-left: 5px solid #f97316; background: #fff7ed; }
+.t2 { border-left: 5px solid #f59e0b; background: #fffbeb; }
+.t3 { border-left: 5px solid #84cc16; background: #f7fee7; }
+.t4 { border-left: 5px solid #22c55e; background: #f0fdf4; }
+.t5 { border-left: 5px solid #10b981; background: #ecfdf5; }
+
+/* C & E COLORING: Green (None) to Red (High/Strict) */
+.c0, .e0 { border-left: 5px solid #22c55e; background: #f0fdf4; }
+.c1, .e1 { border-left: 5px solid #f59e0b; background: #fffbeb; }
+.c2, .e2 { border-left: 5px solid #f97316; background: #fff7ed; }
+.c3, .e3 { border-left: 5px solid #ef4444; background: #fef2f2; }
