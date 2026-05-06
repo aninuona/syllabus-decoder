@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request
+from models import SyllabusEntry
 
 decoder_bp = Blueprint("decoder", __name__)
 
@@ -45,6 +46,14 @@ def classify_policy(text: str) -> dict:
         e_level = "E0"
 
     return {"t_tier": t_tier, "c_level": c_level, "e_level": e_level}
+
+
+@decoder_bp.route("/entries", methods=["GET"])
+def get_entries():
+    # Returns all verified syllabus entries for public data visualization
+    # No authentication required - only returns verified entries
+    entries = SyllabusEntry.query.filter_by(status="verified").order_by(SyllabusEntry.id.desc()).all()
+    return jsonify([e.to_dict() for e in entries]), 200
 
 
 @decoder_bp.route("/classify", methods=["POST"])
