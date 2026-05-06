@@ -297,22 +297,27 @@ def create_app(env: str = None) -> Flask:
                                         skipped += 1
                                         continue
                                     
+                                    # Helper function to safely truncate long strings
+                                    def safe_str(val, max_len):
+                                        s = (val or '').strip()
+                                        return s[:max_len] if s and len(s) > max_len else (s or None)
+                                    
                                     entry = SyllabusEntry(
-                                        course=row.get('Course &', '').strip() or None,
-                                        institution=institution,
-                                        discipline=row.get('Discipline', '').strip() or None,
+                                        course=safe_str(row.get('Course &'), 500),
+                                        institution=safe_str(row.get('Institution'), 500),
+                                        discipline=safe_str(row.get('Discipline'), 300),
                                         policy_text=policy_text,
-                                        contributor=row.get('Contributor', '').strip() or None,
-                                        rights=row.get('Rights for Reuse', '').strip() or None,
-                                        tier_id=row.get('Tier', 'T2').strip(),
-                                        compliance_id=row.get('Compliance', 'C0').strip(),
-                                        enforcement_id=row.get('Enforcement', 'E0').strip(),
+                                        contributor=safe_str(row.get('Contributor'), 500),
+                                        rights=safe_str(row.get('Rights for Reuse'), 500),
+                                        tier_id=safe_str(row.get('Tier', 'T2'), 5),
+                                        compliance_id=safe_str(row.get('Compliance', 'C0'), 5),
+                                        enforcement_id=safe_str(row.get('Enforcement', 'E0'), 5),
                                         notes=row.get('Notes', '').strip() or None,
-                                        school_level=row.get('School Level', '').strip() or None,
-                                        institution_type=row.get('Institution Type', '').strip() or None,
-                                        state_region=row.get('State/Region', '').strip() or None,
-                                        country=row.get('Country', '').strip() or None,
-                                        link=row.get('Link to Institution', '').strip() or None,
+                                        school_level=safe_str(row.get('School Level'), 100),
+                                        institution_type=safe_str(row.get('Institution Type'), 100),
+                                        state_region=safe_str(row.get('State/Region'), 100),
+                                        country=safe_str(row.get('Country'), 100),
+                                        link=safe_str(row.get('Link to Institution'), 500),
                                         status='verified',
                                     )
                                     db.session.add(entry)
