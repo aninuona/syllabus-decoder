@@ -182,13 +182,37 @@
     <div class="admin-topbar fade-up">
       <div class="admin-topbar__title">
         <h1><span style="color:var(--ink)">Admin</span> <span class="accent" style="color:var(--blue)">Console</span></h1>
-        <p>Manage syllabus database entries and system.</p>
+        <p>Manage syllabus database entries and system. 
+    <button type="button" class="info-link-btn" onclick="toggleStatusModal(true)">Learn more about statuses</button>
+        </p>
       </div>
       <div class="admin-topbar__actions">
         <button class="btn btn--ghost btn--sm" id="export-btn">Export CSV</button>
         <button class="btn btn--dark btn--sm" id="logs-btn">System Logs</button>
       </div>
     </div>
+
+    <!-- info on statuses popup -->
+  <div id="statusModal" class="modal-overlay" style="display:none;">
+    <div class="status-modal">
+      <h3>Status Definitions</h3>
+      <ul class="status-list">
+        <li>
+          <strong class="status-verified">Verified:</strong> 
+          The entry has been reviewed by an admin and confirmed to match the original syllabus accurately.
+        </li>
+        <li>
+          <strong class="status-pending">Pending:</strong> 
+          A new submission that has not yet been audited. It is visible but marked as unverified.
+        </li>
+        <li>
+          <strong class="status-flagged">Flagged:</strong> 
+          The entry has been reported or identified as having incorrect data, broken links, or policy mismatches.
+        </li>
+      </ul>
+      <button class="btn btn--primary" onclick="toggleStatusModal(false)" style="margin-top: 20px; width: 100%;">Close</button>
+   </div>
+</div>
 
     <!-- table -->
     <section class="fade-up fade-up--1">
