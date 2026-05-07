@@ -565,6 +565,20 @@
 
     // Init
     checkAuth().then(isAuthed => { if (isAuthed) loadEntries(); });
+
+    // ADMIN PAGE --- LEARN MORE
+    function toggleStatusModal(show) {
+      const modal = document.getElementById('statusModal');
+      modal.style.display = show ? 'flex' : 'none';
+    }
+
+    // Close modal if user clicks outside of the box
+    window.onclick = function(event) {
+      const modal = document.getElementById('statusModal');
+      if (event.target == modal) {
+        toggleStatusModal(false);
+      }
+    }
   </script>
 
 </body>
