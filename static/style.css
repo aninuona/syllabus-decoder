@@ -1087,10 +1087,35 @@ tbody td {
 }
 
 /* GAME PAGE */
+.game-header {
+  text-align: center;
+  background: var(--surface);
+  padding: var(--space-12) var(--space-6) var(--space-8);
+  border-bottom: 1px solid var(--border);
+}
+
+.game-header h1 {
+  margin-bottom: var(--space-4);
+}
+
+.game-description {
+  max-width: 800px;
+  margin: 0 auto;
+  font-size: clamp(0.9rem, 2vw, 1rem);
+  color: var(--ink-3);
+  line-height: 1.6;
+}
+
 .game-container {
-  max-width: 600px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-8);
+  max-width: 1200px;
   margin: var(--space-10) auto;
-  padding: 0 var(--space-6) var(--space-16);
+  padding: 0 var(--space-6) var(--space-10);
+  align-items: start;
+  height: calc(100vh - 300px);
+  min-height: 500px;
 }
 
 .fragment-card {
@@ -1098,13 +1123,17 @@ tbody td {
   border: 1.5px solid var(--border);
   border-radius: var(--r-lg);
   padding: var(--space-8);
-  margin-bottom: var(--space-8);
   box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  height: fit-content;
+  position: sticky;
+  top: var(--space-6);
 }
 
 .fragment-id {
   display: inline-block;
-  font-size: 0.7rem;
+  font-size: clamp(0.6rem, 1.5vw, 0.7rem);
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -1115,18 +1144,26 @@ tbody td {
 .fragment-card blockquote {
   font-family: 'Georgia', serif;
   font-style: italic;
-  font-size: 1.05rem;
+  font-size: clamp(0.9rem, 2vw, 1.05rem);
   color: var(--ink);
   line-height: 1.8;
   border-left: 4px solid var(--blue);
   padding-left: var(--space-4);
   margin: 0;
+  overflow-y: auto;
+  max-height: 400px;
 }
 
 .quiz-form {
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: var(--space-8);
+  box-shadow: var(--shadow-sm);
+  height: fit-content;
 }
 
 .input-group {
@@ -1136,7 +1173,7 @@ tbody td {
 }
 
 .input-group label {
-  font-size: 0.8rem;
+  font-size: clamp(0.7rem, 1.5vw, 0.8rem);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1145,7 +1182,7 @@ tbody td {
 
 .input-group select {
   font-family: var(--font-body);
-  font-size: 0.95rem;
+  font-size: clamp(0.85rem, 1.5vw, 0.95rem);
   padding: 12px 16px;
   border: 1.5px solid var(--border);
   border-radius: var(--r-lg);
@@ -1164,6 +1201,26 @@ tbody td {
   border-color: var(--blue);
   background-color: var(--surface);
   outline: none;
+}
+
+@media (max-width: 1024px) {
+  .game-container {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: auto;
+    gap: var(--space-6);
+  }
+
+  .fragment-card {
+    position: relative;
+    top: 0;
+    max-height: 300px;
+  }
+
+  .fragment-card blockquote {
+    max-height: 250px;
+    font-size: clamp(0.85rem, 2vw, 0.95rem);
+  }
 }
 
 /* FOOTER */
