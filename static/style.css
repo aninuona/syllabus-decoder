@@ -1086,36 +1086,42 @@ tbody td {
   line-height: 1.5;
 }
 
+.dashboard-subtitle {
+  text-align: center;
+  max-width: 100% !important;
+}
+
 /* GAME PAGE */
 .game-header {
   text-align: center;
   background: var(--surface);
-  padding: var(--space-12) var(--space-6) var(--space-8);
+  padding: var(--space-6) var(--space-6) var(--space-4);
   border-bottom: 1px solid var(--border);
 }
 
 .game-header h1 {
-  margin-bottom: var(--space-4);
+  margin: 0 0 var(--space-2) 0;
+  font-size: clamp(1.5rem, 3vw, 2rem);
 }
 
 .game-description {
   max-width: 800px;
   margin: 0 auto;
-  font-size: clamp(0.9rem, 2vw, 1rem);
+  font-size: clamp(0.8rem, 1.5vw, 0.9rem);
   color: var(--ink-3);
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 .game-container {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--space-8);
+  gap: var(--space-6);
   max-width: 1200px;
-  margin: var(--space-10) auto;
-  padding: 0 var(--space-6) var(--space-10);
+  margin: var(--space-6) auto;
+  padding: 0 var(--space-6) var(--space-8);
   align-items: start;
-  height: calc(100vh - 300px);
-  min-height: 500px;
+  height: calc(100vh - 250px);
+  min-height: 450px;
 }
 
 .fragment-card {
