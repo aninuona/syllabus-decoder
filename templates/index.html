@@ -447,7 +447,7 @@ function toggleRow(id) {
 
     async function loadData() {
       try {
-        const res = await fetch('/api/admin/entries');
+        const res = await fetch('/api/decoder/entries');
         if (!res.ok) throw new Error('Failed to load');
         allData = await res.json();
         // Normalize disciplines
