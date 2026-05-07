@@ -4,6 +4,136 @@
     <meta charset="UTF-8">
     <title>Syllabus Decoder | Training Game</title>
     <link rel="stylesheet" href="/static/style.css">
+    <style>
+      .result-card {
+        display: none;
+        animation: slideIn 0.3s ease-out;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .result-card.show {
+        display: block;
+      }
+
+      .comparison-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-4);
+        padding: var(--space-4);
+        background: var(--surface-2);
+        border-radius: var(--r-md);
+        margin-bottom: var(--space-4);
+      }
+
+      .comparison-item {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+      }
+
+      .comparison-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--ink-4);
+      }
+
+      .user-answer {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--ink);
+      }
+
+      .user-answer.incorrect {
+        color: var(--red);
+      }
+
+      .user-answer.correct {
+        color: var(--green);
+      }
+
+      .explanation {
+        margin-top: var(--space-6);
+        padding: var(--space-4);
+        background: var(--surface);
+        border-left: 4px solid var(--blue);
+        border-radius: var(--r-md);
+        font-size: 0.9rem;
+        line-height: 1.6;
+        color: var(--ink-3);
+      }
+
+      .explanation-label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--ink-4);
+        margin-bottom: var(--space-2);
+      }
+
+      .explanation-text {
+        color: var(--ink);
+      }
+
+      .button-row {
+        display: flex;
+        gap: var(--space-4);
+        margin-top: var(--space-6);
+      }
+
+      .btn-secondary {
+        background: var(--ink-2);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: var(--r-lg);
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all var(--t-fast) var(--ease);
+      }
+
+      .btn-secondary:hover {
+        opacity: 0.9;
+      }
+
+      .quiz-form.hidden {
+        display: none;
+      }
+
+      .quiz-form {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-6);
+        background: var(--surface);
+        border: 1.5px solid var(--border);
+        border-radius: var(--r-lg);
+        padding: var(--space-8);
+        box-shadow: var(--shadow-sm);
+        height: fit-content;
+      }
+
+      .result-card {
+        background: var(--surface);
+        border: 1.5px solid var(--border);
+        border-radius: var(--r-lg);
+        padding: var(--space-8);
+        box-shadow: var(--shadow-sm);
+      }
+    </style>
 </head>
 <body>
 
@@ -24,15 +154,15 @@
 
   <main class="game-container">
     <div class="fragment-card">
-        <span class="fragment-id">Fragment #{{ fragment_id }}</span>
-        <blockquote>"{{ policy_text }}"</blockquote>
+        <span class="fragment-id">Fragment #<span id="fragment-num">—</span></span>
+        <blockquote id="policy-text">Loading...</blockquote>
     </div>
 
-    <form action="/check-answer" method="POST" class="quiz-form">
+    <form class="quiz-form" id="quiz-form">
         <div class="input-group">
             <label>Predict T-Tier</label>
-            <select name="user_t">
-                <option selected disabled>Select Tier</option>
+            <select id="user_t" required>
+                <option selected disabled value="">Select Tier</option>
                 <option value="T0">T0 - Prohibited</option>
                 <option value="T1">T1 - Some exceptions</option>
                 <option value="T2">T2 - Ask permission</option>
@@ -44,8 +174,8 @@
 
         <div class="input-group">
             <label>Predict C-Level</label>
-            <select name="user_c">
-                <option selected disabled>Select Compliance</option>
+            <select id="user_c" required>
+                <option selected disabled value="">Select Compliance</option>
                 <option value="C0">C0 - None</option>
                 <option value="C1">C1 - Note if used</option>
                 <option value="C2">C2 - Description of use</option>
@@ -55,10 +185,10 @@
 
         <div class="input-group">
             <label>Predict E-Level</label>
-            <select name="user_e">
-                <option selected disabled>Select Enforcement</option>
+            <select id="user_e" required>
+                <option selected disabled value="">Select Enforcement</option>
                 <option value="E0">E0 - None</option>
-                <option value="E1">E1 - No explicity penalty</option>
+                <option value="E1">E1 - Cautionary language</option>
                 <option value="E2">E2 - Explicit penalty</option>
                 <option value="E3">E3 - Automatic/extreme consequence</option>
             </select>
@@ -66,7 +196,197 @@
 
         <button type="submit" class="btn-primary">Submit Analysis</button>
     </form>
+
+    <div class="result-card" id="result-card">
+      <h3 style="margin-bottom: var(--space-6);">Comparison Results</h3>
+      
+      <div class="comparison-row">
+        <div class="comparison-item">
+          <span class="comparison-label">Your T-Tier</span>
+          <span id="result-user-t" class="user-answer"></span>
+        </div>
+        <div class="comparison-item">
+          <span class="comparison-label">Database T-Tier</span>
+          <span id="result-correct-t" class="user-answer"></span>
+        </div>
+      </div>
+
+      <div class="explanation" id="t-explanation">
+        <span class="explanation-label">T-Tier Analysis</span>
+        <span class="explanation-text" id="t-explanation-text"></span>
+      </div>
+
+      <div class="comparison-row">
+        <div class="comparison-item">
+          <span class="comparison-label">Your C-Level</span>
+          <span id="result-user-c" class="user-answer"></span>
+        </div>
+        <div class="comparison-item">
+          <span class="comparison-label">Database C-Level</span>
+          <span id="result-correct-c" class="user-answer"></span>
+        </div>
+      </div>
+
+      <div class="explanation" id="c-explanation">
+        <span class="explanation-label">Compliance Analysis</span>
+        <span class="explanation-text" id="c-explanation-text"></span>
+      </div>
+
+      <div class="comparison-row">
+        <div class="comparison-item">
+          <span class="comparison-label">Your E-Level</span>
+          <span id="result-user-e" class="user-answer"></span>
+        </div>
+        <div class="comparison-item">
+          <span class="comparison-label">Database E-Level</span>
+          <span id="result-correct-e" class="user-answer"></span>
+        </div>
+      </div>
+
+      <div class="explanation" id="e-explanation">
+        <span class="explanation-label">Enforcement Analysis</span>
+        <span class="explanation-text" id="e-explanation-text"></span>
+      </div>
+
+      <div class="button-row">
+        <button class="btn-primary" onclick="nextFragment()">Next Fragment</button>
+        <button class="btn-secondary" onclick="resetQuiz()">Try Again</button>
+      </div>
+    </div>
   </main>
+
+  <script>
+    let currentFragment = null;
+
+    async function loadFragment() {
+      try {
+        const res = await fetch('/api/game/fragment');
+        if (!res.ok) throw new Error('Failed to load fragment');
+        const data = await res.json();
+        currentFragment = data;
+        displayFragment();
+      } catch (e) {
+        console.error('Error:', e);
+        document.getElementById('policy-text').textContent = 'Failed to load fragment. Please refresh.';
+      }
+    }
+
+    function displayFragment() {
+      document.getElementById('fragment-num').textContent = currentFragment.id;
+      document.getElementById('policy-text').textContent = `"${currentFragment.text}"`;
+      document.getElementById('quiz-form').classList.remove('hidden');
+      document.getElementById('result-card').classList.remove('show');
+    }
+
+    async function submitAnswer(e) {
+      e.preventDefault();
+      
+      const user_t = document.getElementById('user_t').value;
+      const user_c = document.getElementById('user_c').value;
+      const user_e = document.getElementById('user_e').value;
+
+      if (!user_t || !user_c || !user_e) {
+        alert('Please select all three categories');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/game/check', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fragment_id: currentFragment.id,
+            user_t: user_t,
+            user_c: user_c,
+            user_e: user_e
+          })
+        });
+
+        if (!res.ok) throw new Error('Failed to check answer');
+        const result = await res.json();
+        displayResults(result);
+      } catch (e) {
+        console.error('Error:', e);
+        alert('Failed to submit answer');
+      }
+    }
+
+    function getTierLabel(tier) {
+      const labels = {
+        'T0': 'T0 - Prohibited',
+        'T1': 'T1 - Some exceptions',
+        'T2': 'T2 - Ask permission',
+        'T3': 'T3 - Bounded use',
+        'T4': 'T4 - Allowed with documentation',
+        'T5': 'T5 - Open/encouraged'
+      };
+      return labels[tier] || tier;
+    }
+
+    function getComplianceLabel(comp) {
+      const labels = {
+        'C0': 'C0 - None',
+        'C1': 'C1 - Note if used',
+        'C2': 'C2 - Description of use',
+        'C3': 'C3 - Logs/Step-by-step disclosure'
+      };
+      return labels[comp] || comp;
+    }
+
+    function getEnforcementLabel(enf) {
+      const labels = {
+        'E0': 'E0 - None',
+        'E1': 'E1 - Cautionary language',
+        'E2': 'E2 - Explicit penalty',
+        'E3': 'E3 - Automatic/extreme consequence'
+      };
+      return labels[enf] || enf;
+    }
+
+    function displayResults(result) {
+      document.getElementById('quiz-form').classList.add('hidden');
+      document.getElementById('result-card').classList.add('show');
+
+      // T-Tier
+      const tElem = document.getElementById('result-user-t');
+      tElem.textContent = getTierLabel(result.user_t);
+      tElem.className = 'user-answer ' + (result.t_match ? 'correct' : 'incorrect');
+      document.getElementById('result-correct-t').textContent = getTierLabel(result.correct_t);
+      document.getElementById('t-explanation-text').textContent = result.t_explanation;
+
+      // C-Level
+      const cElem = document.getElementById('result-user-c');
+      cElem.textContent = getComplianceLabel(result.user_c);
+      cElem.className = 'user-answer ' + (result.c_match ? 'correct' : 'incorrect');
+      document.getElementById('result-correct-c').textContent = getComplianceLabel(result.correct_c);
+      document.getElementById('c-explanation-text').textContent = result.c_explanation;
+
+      // E-Level
+      const eElem = document.getElementById('result-user-e');
+      eElem.textContent = getEnforcementLabel(result.user_e);
+      eElem.className = 'user-answer ' + (result.e_match ? 'correct' : 'incorrect');
+      document.getElementById('result-correct-e').textContent = getEnforcementLabel(result.correct_e);
+      document.getElementById('e-explanation-text').textContent = result.e_explanation;
+    }
+
+    function nextFragment() {
+      document.getElementById('user_t').value = '';
+      document.getElementById('user_c').value = '';
+      document.getElementById('user_e').value = '';
+      loadFragment();
+    }
+
+    function resetQuiz() {
+      document.getElementById('user_t').value = '';
+      document.getElementById('user_c').value = '';
+      document.getElementById('user_e').value = '';
+      document.getElementById('quiz-form').classList.remove('hidden');
+      document.getElementById('result-card').classList.remove('show');
+    }
+
+    document.getElementById('quiz-form').addEventListener('submit', submitAnswer);
+    loadFragment();
+  </script>
 
 </body>
 </html>
