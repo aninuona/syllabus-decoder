@@ -21,15 +21,15 @@
     <h2>Syllabus Decoder</h2>
     <div style="display: grid; grid-template-columns: 1fr 380px; gap: 24px; align-items: start;">
       <form action="/decode" method="POST" class="decoder-form" style="margin:0">
-          <textarea name="syllabus_text" placeholder="Paste your course's policy text here to receive a classification and explanation." style="min-height:520px; width:100%; font-size:1rem;">{{ pasted_text }}</textarea>
+          <textarea name="syllabus_text" placeholder="Paste policy text here..." style="min-height:520px; width:100%; font-size:1rem;">{{ pasted_text }}</textarea>
           <div style="margin-top:12px; display:flex; gap:8px;">
             <button type="submit" class="btn-primary">Decode Policy</button>
-            <button type="button" id="explain-btn" class="btn--secondary" style="padding:10px 14px;">Explain</button>
           </div>
       </form>
 
       <div style="position:relative;">
-        <div style="display:grid; gap:16px;">
+        <div style="display:grid; grid-template-columns: 1fr 260px; gap:16px; align-items:start;">
+          <div style="display:grid; gap:16px;">
           <div class="glow-card" style="padding:16px; border-radius:12px; box-shadow: 0 8px 30px rgba(0,0,0,0.08);">
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <div>
@@ -67,6 +67,11 @@
               <div style="flex:1; white-space:pre-wrap;">{{ e_reason if e_reason is defined else '' }}</div>
               <div class="definition-text" style="width:220px; color:var(--ink-3);"></div>
             </div>
+          </div>
+          <div id="definitions-column" style="display:flex; flex-direction:column; gap:16px;">
+            <div class="def-box" style="padding:12px; border-radius:8px; background:var(--bg-1); min-height:80px;"></div>
+            <div class="def-box" style="padding:12px; border-radius:8px; background:var(--bg-1); min-height:80px;"></div>
+            <div class="def-box" style="padding:12px; border-radius:8px; background:var(--bg-1); min-height:80px;"></div>
           </div>
         </div>
       </div>
@@ -166,11 +171,12 @@
     });
   }
 
-  // Wire up the Explain button to call the API and update cards in-place
-  document.getElementById('explain-btn').addEventListener('click', async ()=>{
+  // Intercept the Decode Policy form submit and use it to fetch explanations
+  document.querySelector('form.decoder-form').addEventListener('submit', async (ev)=>{
+    ev.preventDefault();
     const textarea = document.querySelector('textarea[name="syllabus_text"]');
     const text = (textarea?.value || '').trim();
-    if(!text){ alert('Please paste some policy text to explain.'); return; }
+    if(!text){ alert('Please paste some policy text to decode.'); return; }
 
     try{
       const res = await fetch('/api/decoder/classify', {
@@ -182,9 +188,14 @@
       const data = await res.json();
       fillCards(data);
       fillDefinitions();
+      // populate right-hand definition column
+      const defBoxes = document.querySelectorAll('#definitions-column .def-box');
+      defBoxes[0].textContent = TIER_DEFINITIONS[data.t_tier] || '';
+      defBoxes[1].textContent = COMPLIANCE_DEFINITIONS[data.c_level] || '';
+      defBoxes[2].textContent = ENFORCEMENT_DEFINITIONS[data.e_level] || '';
     }catch(err){
-      console.error('Explain failed', err);
-      alert('Failed to get explanation. Try again.');
+      console.error('Decode failed', err);
+      alert('Failed to decode policy. Try again.');
     }
   });
 
