@@ -139,6 +139,7 @@ def generate_policy():
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": f"Database error: {str(e)}"}), 500
+    '''
 
     return jsonify({
         "policy_text": policy_text,
@@ -146,4 +147,3 @@ def generate_policy():
         "compliance_id": compliance,
         "enforcement_id": enforcement,
     }), 200
-    '''
