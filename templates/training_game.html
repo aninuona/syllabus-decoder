@@ -10,11 +10,10 @@
       }
 
       .result-container.show {
-        display: flex;
-        flex-direction: row;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
         gap: var(--space-6);
         margin-bottom: var(--space-6);
-        width: 100%;
       }
 
       @keyframes slideIn {
@@ -33,8 +32,6 @@
         display: flex;
         flex-direction: column;
         gap: var(--space-4);
-        flex: 1;
-        min-width: 0;
       }
 
       .comparison-card {
@@ -45,7 +42,6 @@
         cursor: pointer;
         transition: all var(--t-fast) var(--ease);
         box-shadow: var(--shadow-sm);
-        position: relative;
       }
 
       .comparison-card.correct {
@@ -65,11 +61,6 @@
 
       .comparison-card:hover {
         transform: translateY(-2px);
-      }
-
-      .comparison-card:hover .definition-tooltip {
-        opacity: 1;
-        visibility: visible;
       }
 
       .card-header {
@@ -117,48 +108,6 @@
         color: var(--red);
       }
 
-      .definition-tooltip {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: var(--surface-2);
-        border-radius: var(--r-lg);
-        padding: var(--space-6);
-        display: flex;
-        flex-direction: column;
-        gap: var(--space-4);
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity var(--t-fast) var(--ease), visibility var(--t-fast) var(--ease);
-        overflow-y: auto;
-        z-index: 10;
-      }
-
-      .definition-tooltip .definition {
-        margin-bottom: var(--space-4);
-        padding: var(--space-4);
-        background: var(--surface);
-        border-left: 4px solid var(--blue);
-        border-radius: var(--r-md);
-      }
-
-      .definition-tooltip .definition:last-child {
-        margin-bottom: 0;
-      }
-
-      .definition-tooltip .definition-title {
-        font-weight: 700;
-        color: var(--ink);
-        margin-bottom: var(--space-2);
-      }
-
-      .definition-tooltip .definition-text {
-        font-size: 0.9rem;
-        color: var(--ink-3);
-      }
-
       .explanation-section {
         background: var(--surface);
         border: 1.5px solid var(--border);
@@ -181,6 +130,41 @@
         font-size: 0.95rem;
         line-height: 1.6;
         color: var(--ink);
+      }
+
+      .definition-panel {
+        display: none;
+        background: var(--surface);
+        border: 1.5px solid var(--border);
+        border-radius: var(--r-lg);
+        padding: var(--space-6);
+      }
+
+      .definition-panel.show {
+        display: block;
+      }
+
+      .definition {
+        margin-bottom: var(--space-4);
+        padding: var(--space-4);
+        background: var(--surface-2);
+        border-left: 4px solid var(--blue);
+        border-radius: var(--r-md);
+      }
+
+      .definition:last-child {
+        margin-bottom: 0;
+      }
+
+      .definition-title {
+        font-weight: 700;
+        color: var(--ink);
+        margin-bottom: var(--space-2);
+      }
+
+      .definition-text {
+        font-size: 0.9rem;
+        color: var(--ink-3);
       }
 
       .quiz-form.hidden {
@@ -245,125 +229,114 @@
       .btn-secondary {
         background: var(--ink-2);
         color: white;
-        padding: 12px 24px;
         border: none;
+        padding: 10px 20px;
         border-radius: var(--r-lg);
-        cursor: pointer;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         font-weight: 600;
-        transition: background-color var(--t-fast), transform var(--t-fast);
-        flex: 1;
+        cursor: pointer;
+        transition: all var(--t-fast) var(--ease);
       }
 
       .btn-secondary:hover {
-        background-color: var(--ink-3);
-        transform: translateY(-1px);
-      }
-
-      .btn-secondary:active {
-        transform: translateY(0);
+        background: var(--ink-3);
       }
 
       .btn-primary {
         background: var(--blue);
         color: white;
-        padding: 12px 24px;
         border: none;
+        padding: 10px 20px;
         border-radius: var(--r-lg);
-        cursor: pointer;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         font-weight: 600;
-        transition: background-color var(--t-fast), transform var(--t-fast);
-        flex: 1;
+        cursor: pointer;
+        transition: all var(--t-fast) var(--ease);
+        box-shadow: var(--shadow-blue);
       }
 
       .btn-primary:hover {
-        background-color: var(--blue-hover);
-        transform: translateY(-1px);
+        background: var(--blue-hover);
       }
 
-      .btn-primary:active {
-        transform: translateY(0);
-      }
-
-      main {
-        max-width: 100%;
-        width: 100%;
+      .game-container {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: var(--space-8);
+        max-width: 1400px;
         margin: 0 auto;
         padding: var(--space-8);
-        background: var(--canvas);
+        min-height: calc(100vh - 100px);
       }
 
-      .main-content {
-        display: flex;
-        flex-direction: row;
-        gap: var(--space-8);
-        width: 100%;
-      }
-
-      .fragment-text-section {
-        flex: 1;
-        min-width: 0;
-      }
-
-      .cards-container {
-        flex: 3;
-        min-width: 0;
-      }
-
-      .fragment-container {
+      .fragment-card {
         background: var(--surface);
         border: 1.5px solid var(--border);
-        border-radius: var(--r-lg);
+        border-radius: var(--r-xl);
         padding: var(--space-8);
-        box-shadow: var(--shadow-sm);
+        box-shadow: var(--shadow-md);
         position: sticky;
         top: var(--space-8);
+        height: fit-content;
+        max-height: calc(100vh - 120px);
+        display: flex;
+        flex-direction: column;
       }
 
       .fragment-header {
-        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        margin-bottom: var(--space-6);
+        padding-bottom: var(--space-4);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .fragment-badge {
+        background: var(--blue-light);
+        color: var(--blue);
+        font-size: 0.65rem;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.1em;
-        color: var(--ink-4);
-        margin-bottom: var(--space-4);
+        padding: 6px 12px;
+        border-radius: var(--r-full);
       }
 
-      .fragment-number {
-        font-size: 0.9rem;
-        color: var(--ink-3);
-        margin-bottom: var(--space-4);
-      }
-
-      .fragment-text {
-        font-size: 1rem;
+      .fragment-card blockquote {
+        font-size: clamp(0.95rem, 1.5vw, 1.05rem);
         line-height: 1.7;
         color: var(--ink);
         font-style: italic;
+        margin: 0;
+        padding: var(--space-4);
+        background: var(--surface-2);
+        border-left: 4px solid var(--blue);
+        border-radius: var(--r-md);
+        overflow-y: auto;
+        min-height: 200px;
+        height: 100%;
       }
 
-      @media (max-width: 1200px) {
-        .main-content {
-          flex-direction: column;
+      @media (max-width: 1024px) {
+        .game-container {
+          grid-template-columns: 1fr;
+          gap: var(--space-6);
         }
 
-        .fragment-container {
-          position: static;
+        .fragment-card {
+          position: relative;
+          top: 0;
+          max-height: 400px;
         }
 
         .result-container.show {
-          flex-direction: column;
-        }
-
-        .result-column {
-          flex: 1;
+          grid-template-columns: 1fr;
         }
       }
     </style>
 </head>
 <body>
-
   <nav class="main-nav">
     <div class="logo"><a href="/">Syllabus Decoder</a></div>
     <div class="nav-links">
@@ -373,11 +346,6 @@
       <a href="/admin">Admin</a>
     </div>
   </nav>
-
-  <header class="game-header">
-    <h1>Training Game</h1>
-    <p class="game-description">Test your knowledge of AI syllabus policies by classifying syllabi yourself. Read the policy text and predict its T-Tier (permissiveness), C-Level (documentation requirements), and E-Level (enforcement consequences). Compare your analysis with the verified classification to sharpen your understanding of policy frameworks.</p>
-  </header>
 
   <main class="game-container">
     <div class="fragment-card">
@@ -431,67 +399,73 @@
         <!-- T Column -->
         <div class="result-column" id="t-column">
           <div class="comparison-card" id="t-card">
-            <div class="card-header">Permissiveness</div>
+            <div class="card-header">Your vs Verified</div>
             <div class="card-content">
               <div class="card-value">
-                <span class="card-label">You</span>
+                <span class="card-label">Your T-Level</span>
                 <span class="card-code" id="t-user-code"></span>
               </div>
               <div class="card-value">
-                <span class="card-label">Verified</span>
+                <span class="card-label">Database T-Level</span>
                 <span class="card-code" id="t-correct-code"></span>
-            </div>
-          </div>
-
-          <!-- C Column -->
-          <div class="result-column" id="c-column">
-            <div class="comparison-card" id="c-card">
-              <div class="card-header">Compliance</div>
-              <div class="card-content">
-                <div class="card-value">
-                  <span class="card-label">You</span>
-                  <span class="card-code" id="c-user-code"></span>
-                </div>
-                <div class="card-value">
-                  <span class="card-label">Verified</span>
-                  <span class="card-code" id="c-correct-code"></span>
-                </div>
               </div>
-              <div class="definition-tooltip" id="c-tooltip"></div>
-            </div>
-            <div class="explanation-section">
-              <div class="explanation-header">Compliance Analysis</div>
-              <div class="explanation-text" id="c-explanation"></div>
             </div>
           </div>
-
-          <!-- E Column -->
-          <div class="result-column" id="e-column">
-            <div class="comparison-card" id="e-card">
-              <div class="card-header">Enforcement</div>
-              <div class="card-content">
-                <div class="card-value">
-                  <span class="card-label">You</span>
-                  <span class="card-code" id="e-user-code"></span>
-                </div>
-                <div class="card-value">
-                  <span class="card-label">Verified</span>
-                  <span class="card-code" id="e-correct-code"></span>
-                </div>
-              </div>
-              <div class="definition-tooltip" id="e-tooltip"></div>
-            </div>
-            <div class="explanation-section">
-              <div class="explanation-header">Enforcement Analysis</div>
-              <div class="explanation-text" id="e-explanation"></div>
-            </div>
+          <div class="explanation-section">
+            <div class="explanation-header">T-Tier Analysis</div>
+            <div class="explanation-text" id="t-explanation"></div>
           </div>
+          <div class="definition-panel" id="t-definitions"></div>
         </div>
 
-        <div class="button-row">
-          <button class="btn-primary" onclick="nextFragment()">Next Fragment</button>
-          <button class="btn-secondary" onclick="resetQuiz()">Try Again</button>
+        <!-- C Column -->
+        <div class="result-column" id="c-column">
+          <div class="comparison-card" id="c-card">
+            <div class="card-header">Your vs Verified</div>
+            <div class="card-content">
+              <div class="card-value">
+                <span class="card-label">Your C-Level</span>
+                <span class="card-code" id="c-user-code"></span>
+              </div>
+              <div class="card-value">
+                <span class="card-label">Database C-Level</span>
+                <span class="card-code" id="c-correct-code"></span>
+              </div>
+            </div>
+          </div>
+          <div class="explanation-section">
+            <div class="explanation-header">Compliance Analysis</div>
+            <div class="explanation-text" id="c-explanation"></div>
+          </div>
+          <div class="definition-panel" id="c-definitions"></div>
         </div>
+
+        <!-- E Column -->
+        <div class="result-column" id="e-column">
+          <div class="comparison-card" id="e-card">
+            <div class="card-header">Your vs Verified</div>
+            <div class="card-content">
+              <div class="card-value">
+                <span class="card-label">Your E-Level</span>
+                <span class="card-code" id="e-user-code"></span>
+              </div>
+              <div class="card-value">
+                <span class="card-label">Database E-Level</span>
+                <span class="card-code" id="e-correct-code"></span>
+              </div>
+            </div>
+          </div>
+          <div class="explanation-section">
+            <div class="explanation-header">Enforcement Analysis</div>
+            <div class="explanation-text" id="e-explanation"></div>
+          </div>
+          <div class="definition-panel" id="e-definitions"></div>
+        </div>
+      </div>
+
+      <div class="button-row">
+        <button class="btn-primary" onclick="nextFragment()">Next Fragment</button>
+        <button class="btn-secondary" onclick="resetQuiz()">Try Again</button>
       </div>
     </div>
   </main>
@@ -597,7 +571,7 @@
       document.getElementById('t-correct-code').textContent = result.correct_t;
       document.getElementById('t-card').className = 'comparison-card ' + getCardClass(result.user_t, result.correct_t);
       document.getElementById('t-explanation').textContent = result.t_explanation;
-      document.getElementById('t-tooltip').innerHTML = buildDefinitionPanel(
+      document.getElementById('t-definitions').innerHTML = buildDefinitionPanel(
         result.user_t,
         result.correct_t,
         tierDefinitions
@@ -609,7 +583,7 @@
       document.getElementById('c-correct-code').textContent = result.correct_c;
       document.getElementById('c-card').className = 'comparison-card ' + getCardClass(result.user_c, result.correct_c);
       document.getElementById('c-explanation').textContent = result.c_explanation;
-      document.getElementById('c-tooltip').innerHTML = buildDefinitionPanel(
+      document.getElementById('c-definitions').innerHTML = buildDefinitionPanel(
         result.user_c,
         result.correct_c,
         complianceDefinitions
@@ -621,11 +595,16 @@
       document.getElementById('e-correct-code').textContent = result.correct_e;
       document.getElementById('e-card').className = 'comparison-card ' + getCardClass(result.user_e, result.correct_e);
       document.getElementById('e-explanation').textContent = result.e_explanation;
-      document.getElementById('e-tooltip').innerHTML = buildDefinitionPanel(
+      document.getElementById('e-definitions').innerHTML = buildDefinitionPanel(
         result.user_e,
         result.correct_e,
         enforcementDefinitions
       );
+
+      // Attach click listeners
+      document.getElementById('t-card').onclick = () => toggleDefinitions('t-definitions');
+      document.getElementById('c-card').onclick = () => toggleDefinitions('c-definitions');
+      document.getElementById('e-card').onclick = () => toggleDefinitions('e-definitions');
     }
 
     function buildDefinitionPanel(userCode, correctCode, definitions) {
@@ -636,6 +615,11 @@
           <div class="definition-text">${definitions[code].desc}</div>
         </div>
       `).join('');
+    }
+
+    function toggleDefinitions(panelId) {
+      const panel = document.getElementById(panelId);
+      panel.classList.toggle('show');
     }
 
     function nextFragment() {
