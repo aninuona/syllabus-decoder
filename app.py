@@ -89,6 +89,14 @@ def create_app(env: str = None) -> Flask:
         # Loads builder questions from DB and renders the wizard
         from models import BuilderQuestion
         questions = BuilderQuestion.query.order_by(BuilderQuestion.step_number).all()
+        # Deduplicate by step_number in case of duplicates in DB
+        seen = set()
+        unique_questions = []
+        for q in questions:
+            if q.step_number in seen:
+                continue
+            seen.add(q.step_number)
+            unique_questions.append(q)
         
         # Convert to dict for JSON serialization
         questions_data = [{
@@ -104,7 +112,7 @@ def create_app(env: str = None) -> Flask:
             'option_c_title': q.option_c_title,
             'option_c_desc': q.option_c_desc,
             'option_c_value': q.option_c_value,
-        } for q in questions]
+        } for q in unique_questions]
         
         return render_template("build_syllabus.html", questions=questions_data)
 
@@ -126,10 +134,11 @@ def create_app(env: str = None) -> Flask:
         policy_text = template.replace("this course", course_name) if course_name else template
 
         new_policy = PolicyGenerated(
-            course_name   = course_name,
-            policy_text   = policy_text,
-            tier_id       = tier,
-            compliance_id = compliance,
+            course_name    = course_name,
+            policy_text    = policy_text,
+            tier_id        = tier,
+            compliance_id  = compliance,
+            enforcement_id = enforcement,
         )
         db.session.add(new_policy)
         db.session.commit()
