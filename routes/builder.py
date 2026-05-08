@@ -125,6 +125,7 @@ def generate_policy():
     policy_text = POLICY_TEMPLATES.get(answer_1, "")
     
     # Save to database
+    '''
     try:
         new_policy = PolicyGenerated(
             course_name="Generated",
@@ -145,3 +146,4 @@ def generate_policy():
         "compliance_id": compliance,
         "enforcement_id": enforcement,
     }), 200
+    '''
