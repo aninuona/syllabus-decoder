@@ -45,14 +45,14 @@ def create_app(env: str = None) -> Flask:
 
     # Page routes
 
-    # TEMPORARY, will DELETE
-    
+    # TEMPORARY,  DELETES DB, use to reset
+    '''
     @app.route('/reset-db-structure')
     def reset_db():
         db.drop_all()   # Deletes the old table with 300-char limits
         db.create_all() # Creates new table with 1000-char limits from models.py
         return "Database structure reset successfully!" 
-    
+    '''
 
     @app.route("/")
     def home():
