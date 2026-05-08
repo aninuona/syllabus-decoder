@@ -19,27 +19,129 @@
 
   <main class="tool-container">
     <h2>Syllabus Decoder</h2>
-    
-    <form action="/decode" method="POST" class="decoder-form">
-        <textarea name="syllabus_text" placeholder="Paste policy text here...">{{ pasted_text }}</textarea>
-        <button type="submit" class="btn-primary">Decode Policy</button>
-    </form>
+    <div style="display: grid; grid-template-columns: 1fr 380px; gap: 24px; align-items: start;">
+      <form action="/decode" method="POST" class="decoder-form" style="margin:0">
+          <textarea name="syllabus_text" placeholder="Paste your course's policy text here to receive a classification and explanation..." style="min-height:420px;">{{ pasted_text }}</textarea>
+          <div style="margin-top:12px; display:flex; gap:8px;">
+            <button type="submit" class="btn-primary">Decode Policy</button>
+            <button type="button" id="explain-btn" class="btn-secondary" style="padding:10px 14px;">Explain</button>
+          </div>
+      </form>
 
-    <div class="results-grid">
-        <div class="result-box">
-            <span class="label">T-Tier</span>
-            <div class="value">{{ t_tier or '--' }}</div>
+      <div style="position:relative;">
+        <div style="display:grid; gap:16px;">
+          <div class="glow-card" style="padding:16px; border-radius:12px; box-shadow: 0 8px 30px rgba(0,0,0,0.08);">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <div class="label">T-Tier</div>
+                <div style="font-size:1.25rem; font-weight:700; color:var(--blue);">{{ t_tier or '--' }}</div>
+              </div>
+            </div>
+            <div style="margin-top:12px; white-space:pre-wrap;">{{ t_reason if t_reason is defined else '' }}</div>
+          </div>
+
+          <div class="glow-card" style="padding:16px; border-radius:12px; box-shadow: 0 8px 30px rgba(0,0,0,0.08);">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <div class="label">C-Level</div>
+                <div style="font-size:1.25rem; font-weight:700; color:var(--blue);">{{ c_level or '--' }}</div>
+              </div>
+            </div>
+            <div style="margin-top:12px; white-space:pre-wrap;">{{ c_reason if c_reason is defined else '' }}</div>
+          </div>
+
+          <div class="glow-card" style="padding:16px; border-radius:12px; box-shadow: 0 8px 30px rgba(0,0,0,0.08);">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <div class="label">E-Level</div>
+                <div style="font-size:1.25rem; font-weight:700; color:var(--blue);">{{ e_level or '--' }}</div>
+              </div>
+            </div>
+            <div style="margin-top:12px; white-space:pre-wrap;">{{ e_reason if e_reason is defined else '' }}</div>
+          </div>
         </div>
-        <div class="result-box">
-            <span class="label">C-Level</span>
-            <div class="value">{{ c_level or '--' }}</div>
-        </div>
-        <div class="result-box">
-            <span class="label">E-Level</span>
-            <div class="value">{{ e_level or '--' }}</div>
-        </div>
+      </div>
     </div>
   </main>
 
 </body>
+<script>
+  function getColors(code){
+    if(!code || code.length<2) return {bg:'#f3f4f6', border:'#9ca3af'};
+    const level = code[0];
+    const n = parseInt(code[1]||'0');
+    if(level==='T'){
+      if(n<=1) return {bg:'rgba(239,68,68,0.08)', border:'#ef4444'};
+      if(n===2) return {bg:'rgba(245,158,11,0.06)', border:'#f59e0b'};
+      if(n===3) return {bg:'rgba(132,204,22,0.06)', border:'#84cc16'};
+      if(n>=4) return {bg:'rgba(34,197,94,0.06)', border:'#22c55e'};
+    }
+    if(level==='C'){
+      if(n===0) return {bg:'rgba(34,197,94,0.06)', border:'#22c55e'};
+      if(n===1) return {bg:'rgba(245,158,11,0.06)', border:'#f59e0b'};
+      if(n>=2) return {bg:'rgba(239,68,68,0.06)', border:'#ef4444'};
+    }
+    if(level==='E'){
+      if(n===0) return {bg:'rgba(34,197,94,0.06)', border:'#22c55e'};
+      if(n===1) return {bg:'rgba(245,158,11,0.06)', border:'#f59e0b'};
+      if(n>=2) return {bg:'rgba(239,68,68,0.06)', border:'#ef4444'};
+    }
+    return {bg:'#f3f4f6', border:'#9ca3af'};
+  }
+
+  // Update styles for a specific card based on its code text (e.g., "T2")
+  function styleCardByCode(card){
+    const codeText = card.querySelector('[style*="font-size:1.25rem"]')?.textContent?.trim() || '';
+    const colors = getColors(codeText);
+    card.style.background = colors.bg;
+    card.style.border = `1px solid ${colors.border}`;
+    card.style.boxShadow = `0 8px 30px ${colors.bg}`;
+  }
+
+  // Fill cards with data returned from API result
+  function fillCards(result){
+    if(!result) return;
+    const tCard = document.querySelectorAll('.glow-card')[0];
+    const cCard = document.querySelectorAll('.glow-card')[1];
+    const eCard = document.querySelectorAll('.glow-card')[2];
+
+    tCard.querySelector('[style*="font-size:1.25rem"]').textContent = result.t_tier || '--';
+    tCard.querySelector('div[style*="white-space:pre-wrap"]') .textContent = result.t_reason || '';
+    styleCardByCode(tCard);
+
+    cCard.querySelector('[style*="font-size:1.25rem"]').textContent = result.c_level || '--';
+    cCard.querySelector('div[style*="white-space:pre-wrap"]') .textContent = result.c_reason || '';
+    styleCardByCode(cCard);
+
+    eCard.querySelector('[style*="font-size:1.25rem"]').textContent = result.e_level || '--';
+    eCard.querySelector('div[style*="white-space:pre-wrap"]') .textContent = result.e_reason || '';
+    styleCardByCode(eCard);
+  }
+
+  // Wire up the Explain button to call the API and update cards in-place
+  document.getElementById('explain-btn').addEventListener('click', async ()=>{
+    const textarea = document.querySelector('textarea[name="syllabus_text"]');
+    const text = (textarea?.value || '').trim();
+    if(!text){ alert('Please paste some policy text to explain.'); return; }
+
+    try{
+      const res = await fetch('/api/decoder/classify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text })
+      });
+      if(!res.ok){ throw new Error('Server error'); }
+      const data = await res.json();
+      fillCards(data);
+    }catch(err){
+      console.error('Explain failed', err);
+      alert('Failed to get explanation. Try again.');
+    }
+  });
+
+  // Style initial cards on load (use any existing server-rendered values)
+  window.addEventListener('load', ()=>{
+    document.querySelectorAll('.glow-card').forEach(styleCardByCode);
+  });
+</script>
 </html>
