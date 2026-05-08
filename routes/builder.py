@@ -5,7 +5,7 @@ builder_bp = Blueprint("builder", __name__)
 
 
 # Map philosophy values to T/C/E dimensions independently
-# Question 1 (Educational Alignment) T tier
+# Question 1 (Educational Alignment)  T tier
 T_MAP = {
     "Minimal Intervention": "T0",
     "Bounded Use": "T3",
@@ -14,16 +14,16 @@ T_MAP = {
 
 # Question 2 (Compliance & Accountability)  C level
 C_MAP = {
-    "None": "C0",
-    "Heavy": "C3",
-    "Light": "C1",
+    "Minimal Intervention": "C0",
+    "With Documentation": "C3",
+    "Open Use": "C1",
 }
 
 # Question 3 (Enforcement & Consequences)  E level
 E_MAP = {
-    "Automatic/Extreme": "E2",
-    "Specific": "E2",
-    "None": "E0",
+    "Minimal Intervention": "E2",
+    "Bounded Use": "E2",
+    "Open Use": "E0",
 }
 
 # Policy templates for each philosophy
