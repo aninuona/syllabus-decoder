@@ -98,18 +98,34 @@
       <div class="result-section">
         <h2>Your AI Policy</h2>
         
-        <div style="margin-bottom: 20px;">
+        <div style="margin-bottom: 30px;">
           <label style="font-size: 0.9rem; color: var(--ink-3);">Course Name (optional)</label>
           <input type="text" id="course-name" class="course-input" placeholder="e.g., Data Structures 101">
         </div>
 
-        <div class="result-meta" id="result-meta"></div>
+        <!-- Glow Card Display for T/C/E -->
+        <div style="margin-bottom: 40px;">
+          <div class="glow-card-row row-3" style="grid-template-columns: repeat(3, 1fr); gap: 20px;">
+            <div class="glow-card" id="card-t">
+              <div class="glow-card__title" id="tier-display">T0</div>
+              <div class="glow-card__content" id="tier-definition" style="max-height: 400px; opacity: 1; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">Tier Definition</div>
+            </div>
+            <div class="glow-card" id="card-c">
+              <div class="glow-card__title" id="compliance-display">C0</div>
+              <div class="glow-card__content" id="compliance-definition" style="max-height: 400px; opacity: 1; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">Compliance Definition</div>
+            </div>
+            <div class="glow-card" id="card-e">
+              <div class="glow-card__title" id="enforcement-display">E0</div>
+              <div class="glow-card__content" id="enforcement-definition" style="max-height: 400px; opacity: 1; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">Enforcement Definition</div>
+            </div>
+          </div>
+        </div>
         
         <div class="result-text" id="policy-text"></div>
 
         <div class="controls">
           <button class="btn btn--secondary" onclick="backToQuiz()">← Edit Answers</button>
-          <button class="btn btn--primary" onclick="savePolicy()">Save Policy</button>
+          <button class="btn btn--primary" id="copy-btn" onclick="copyPolicy()">📋 Copy to Clipboard</button>
         </div>
       </div>
     </div>
@@ -120,6 +136,29 @@
     let currentStep = 0;
     let answers = {}; // { step_number: "option_value" }
     let lastGeneratedPolicy = null;
+
+    // T/C/E Definitions
+    const TIER_DEFINITIONS = {
+      "T0": "Prohibited - All AI use is banned",
+      "T1": "Discouraged - Use not recommended",
+      "T2": "Permission-Required - Must ask first",
+      "T3": "Bounded Use - Allowed for specific tasks",
+      "T4": "Documented Use - Permitted with logs",
+      "T5": "Unrestricted - Welcomed or encouraged",
+    };
+
+    const COMPLIANCE_DEFINITIONS = {
+      "C0": "None - No disclosure required",
+      "C1": "Minimal - Brief mention needed",
+      "C2": "Structured - Formal citation required",
+      "C3": "Full Audit - Prompt logs & reflections",
+    };
+
+    const ENFORCEMENT_DEFINITIONS = {
+      "E0": "Trust-Based - Reliant on integrity",
+      "E1": "Instructive - Warnings provided",
+      "E2": "Investigative - Detection tools used",
+    };
 
     async function loadQuestions() {
       try {
@@ -141,8 +180,8 @@
       currentStep = stepIndex;
       const q = questions[stepIndex];
       
-      // Update progress
-      const pct = Math.round(((stepIndex) / questions.length) * 100);
+      // Update progress - calculate based on actual questions length, not step count
+      const pct = Math.round((stepIndex / questions.length) * 100);
       document.getElementById('progress-fill').style.width = pct + '%';
       document.getElementById('step-label').textContent = `Step ${stepIndex + 1} of ${questions.length}: ${q.category}`;
       document.getElementById('step-pct').textContent = pct + '% complete';
@@ -231,25 +270,80 @@
       }
     }
 
+    function getCardColors(value) {
+      // Maps T, C, E values to color scheme
+      // Warm colors (red/orange) = more restrictive/high severity
+      // Cool colors (blue/green) = more permissive/low severity
+      
+      const tierValue = parseInt(value[1]); // Extract number from T0-T5
+      const level = value[0]; // T, C, or E
+      
+      if (level === 'T') {
+        // T: 0-5 scale
+        // T0-T1 = warm (restrictive), T4-T5 = cool (permissive)
+        if (tierValue === 0) return { glow: 'rgba(239, 68, 68, 0.4)', border: '#ef4444' }; // T0: Red
+        if (tierValue === 1) return { glow: 'rgba(249, 115, 22, 0.4)', border: '#f97316' }; // T1: Orange
+        if (tierValue === 2) return { glow: 'rgba(245, 158, 11, 0.4)', border: '#f59e0b' }; // T2: Amber
+        if (tierValue === 3) return { glow: 'rgba(132, 204, 22, 0.4)', border: '#84cc16' }; // T3: Lime
+        if (tierValue === 4) return { glow: 'rgba(34, 197, 94, 0.4)', border: '#22c55e' }; // T4: Green
+        if (tierValue === 5) return { glow: 'rgba(16, 185, 129, 0.4)', border: '#10b981' }; // T5: Emerald
+      }
+      
+      if (level === 'C') {
+        // C: 0-3 scale
+        // C0 = cool (no docs needed), C3 = warm (full audit)
+        if (tierValue === 0) return { glow: 'rgba(34, 197, 94, 0.4)', border: '#22c55e' }; // C0: Green
+        if (tierValue === 1) return { glow: 'rgba(245, 158, 11, 0.4)', border: '#f59e0b' }; // C1: Amber
+        if (tierValue === 2) return { glow: 'rgba(249, 115, 22, 0.4)', border: '#f97316' }; // C2: Orange
+        if (tierValue === 3) return { glow: 'rgba(239, 68, 68, 0.4)', border: '#ef4444' }; // C3: Red
+      }
+      
+      if (level === 'E') {
+        // E: 0-2 scale
+        // E0 = cool (trust-based), E2 = warm (investigative)
+        if (tierValue === 0) return { glow: 'rgba(34, 197, 94, 0.4)', border: '#22c55e' }; // E0: Green
+        if (tierValue === 1) return { glow: 'rgba(245, 158, 11, 0.4)', border: '#f59e0b' }; // E1: Amber
+        if (tierValue === 2) return { glow: 'rgba(239, 68, 68, 0.4)', border: '#ef4444' }; // E2: Red
+      }
+      
+      // Fallback
+      return { glow: 'rgba(107, 114, 128, 0.4)', border: '#6b7280' };
+    }
+
     function showResult() {
       document.getElementById('quiz-view').classList.add('hidden');
       document.getElementById('result-view').classList.remove('hidden');
       
+      // Set policy text
       document.getElementById('policy-text').textContent = lastGeneratedPolicy.policy_text;
-      document.getElementById('result-meta').innerHTML = `
-        <div class="result-meta-item">
-          <label>T-Tier</label>
-          <strong>${lastGeneratedPolicy.tier_id}</strong>
-        </div>
-        <div class="result-meta-item">
-          <label>C-Level</label>
-          <strong>${lastGeneratedPolicy.compliance_id}</strong>
-        </div>
-        <div class="result-meta-item">
-          <label>E-Level</label>
-          <strong>${lastGeneratedPolicy.enforcement_id}</strong>
-        </div>
-      `;
+      
+      // Set T/C/E display with glow cards
+      const tierDisplay = lastGeneratedPolicy.tier_id;
+      const complianceDisplay = lastGeneratedPolicy.compliance_id;
+      const enforcementDisplay = lastGeneratedPolicy.enforcement_id;
+      
+      // Get colors based on severity
+      const tierColors = getCardColors(tierDisplay);
+      const complianceColors = getCardColors(complianceDisplay);
+      const enforcementColors = getCardColors(enforcementDisplay);
+      
+      // Update T card
+      document.getElementById('card-t').style.setProperty('--glow-color', tierColors.glow);
+      document.getElementById('card-t').style.setProperty('--border-color', tierColors.border);
+      document.getElementById('tier-display').textContent = tierDisplay;
+      document.getElementById('tier-definition').textContent = TIER_DEFINITIONS[tierDisplay] || 'Tier Definition';
+      
+      // Update C card
+      document.getElementById('card-c').style.setProperty('--glow-color', complianceColors.glow);
+      document.getElementById('card-c').style.setProperty('--border-color', complianceColors.border);
+      document.getElementById('compliance-display').textContent = complianceDisplay;
+      document.getElementById('compliance-definition').textContent = COMPLIANCE_DEFINITIONS[complianceDisplay] || 'Compliance Definition';
+      
+      // Update E card
+      document.getElementById('card-e').style.setProperty('--glow-color', enforcementColors.glow);
+      document.getElementById('card-e').style.setProperty('--border-color', enforcementColors.border);
+      document.getElementById('enforcement-display').textContent = enforcementDisplay;
+      document.getElementById('enforcement-definition').textContent = ENFORCEMENT_DEFINITIONS[enforcementDisplay] || 'Enforcement Definition';
     }
 
     function backToQuiz() {
@@ -257,8 +351,35 @@
       document.getElementById('quiz-view').classList.remove('hidden');
     }
 
-    function savePolicy() {
-      alert('✓ Policy saved! You can view it in the admin console.');
+    function copyPolicy() {
+      const policyText = document.getElementById('policy-text').textContent;
+      const courseName = document.getElementById('course-name').value || 'Course';
+      const tierDisplay = document.getElementById('tier-display').textContent;
+      const complianceDisplay = document.getElementById('compliance-display').textContent;
+      const enforcementDisplay = document.getElementById('enforcement-display').textContent;
+      
+      // Combine all info for clipboard
+      const fullText = `${courseName} - AI Policy
+
+Tier: ${tierDisplay}
+Compliance: ${complianceDisplay}
+Enforcement: ${enforcementDisplay}
+
+${policyText}`;
+      
+      // Copy to clipboard
+      navigator.clipboard.writeText(fullText).then(() => {
+        // Show success feedback
+        const btn = document.getElementById('copy-btn');
+        const originalText = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => {
+          btn.textContent = originalText;
+        }, 2000);
+      }).catch(err => {
+        console.error('Failed to copy:', err);
+        alert('Failed to copy to clipboard. Please try again.');
+      });
     }
 
     // Load on page load
