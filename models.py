@@ -90,4 +90,5 @@ class PolicyGenerated(db.Model):
     policy_text   = db.Column(db.Text,        nullable=False)
     tier_id       = db.Column(db.String(10),  nullable=False)
     compliance_id = db.Column(db.String(10),  nullable=False)
+    enforcement_id = db.Column(db.String(10),  nullable=False)
     created_at    = db.Column(db.DateTime,    server_default=db.func.now())
