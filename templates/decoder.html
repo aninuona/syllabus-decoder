@@ -21,10 +21,10 @@
     <h2>Syllabus Decoder</h2>
     <div style="display: grid; grid-template-columns: 1fr 380px; gap: 24px; align-items: start;">
       <form action="/decode" method="POST" class="decoder-form" style="margin:0">
-          <textarea name="syllabus_text" placeholder="Paste your course's policy text here to receive a classification and explanation..." style="min-height:420px;">{{ pasted_text }}</textarea>
+          <textarea name="syllabus_text" placeholder="Paste your course's policy text here to receive a classification and explanation." style="min-height:520px; width:100%; font-size:1rem;">{{ pasted_text }}</textarea>
           <div style="margin-top:12px; display:flex; gap:8px;">
             <button type="submit" class="btn-primary">Decode Policy</button>
-            <button type="button" id="explain-btn" class="btn-secondary" style="padding:10px 14px;">Explain</button>
+            <button type="button" id="explain-btn" class="btn--secondary" style="padding:10px 14px;">Explain</button>
           </div>
       </form>
 
@@ -33,31 +33,40 @@
           <div class="glow-card" style="padding:16px; border-radius:12px; box-shadow: 0 8px 30px rgba(0,0,0,0.08);">
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <div>
-                <div class="label">T-Tier</div>
+                <div class="label">Permissiveness Tier</div>
                 <div style="font-size:1.25rem; font-weight:700; color:var(--blue);">{{ t_tier or '--' }}</div>
               </div>
             </div>
-            <div style="margin-top:12px; white-space:pre-wrap;">{{ t_reason if t_reason is defined else '' }}</div>
+            <div style="margin-top:12px; display:flex; gap:16px; align-items:flex-start;">
+              <div style="flex:1; white-space:pre-wrap;">{{ t_reason if t_reason is defined else '' }}</div>
+              <div class="definition-text" style="width:220px; color:var(--ink-3);"></div>
+            </div>
           </div>
 
           <div class="glow-card" style="padding:16px; border-radius:12px; box-shadow: 0 8px 30px rgba(0,0,0,0.08);">
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <div>
-                <div class="label">C-Level</div>
+                <div class="label">Compliance Level</div>
                 <div style="font-size:1.25rem; font-weight:700; color:var(--blue);">{{ c_level or '--' }}</div>
               </div>
             </div>
-            <div style="margin-top:12px; white-space:pre-wrap;">{{ c_reason if c_reason is defined else '' }}</div>
+            <div style="margin-top:12px; display:flex; gap:16px; align-items:flex-start;">
+              <div style="flex:1; white-space:pre-wrap;">{{ c_reason if c_reason is defined else '' }}</div>
+              <div class="definition-text" style="width:220px; color:var(--ink-3);"></div>
+            </div>
           </div>
 
           <div class="glow-card" style="padding:16px; border-radius:12px; box-shadow: 0 8px 30px rgba(0,0,0,0.08);">
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <div>
-                <div class="label">E-Level</div>
+                <div class="label">Enforcement Level</div>
                 <div style="font-size:1.25rem; font-weight:700; color:var(--blue);">{{ e_level or '--' }}</div>
               </div>
             </div>
-            <div style="margin-top:12px; white-space:pre-wrap;">{{ e_reason if e_reason is defined else '' }}</div>
+            <div style="margin-top:12px; display:flex; gap:16px; align-items:flex-start;">
+              <div style="flex:1; white-space:pre-wrap;">{{ e_reason if e_reason is defined else '' }}</div>
+              <div class="definition-text" style="width:220px; color:var(--ink-3);"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -118,6 +127,45 @@
     styleCardByCode(eCard);
   }
 
+  // Standard definitions to display alongside each result
+  const TIER_DEFINITIONS = {
+    "T0": "The use of generative AI tools is prohibited in this course.",
+    "T1": "Students are strongly discouraged from using generative AI.",
+    "T2": "Use of generative AI requires prior instructor approval.",
+    "T3": "Generative AI may be used for brainstorming, outlining, and editing only.",
+    "T4": "Generative AI is permitted with full documentation and prompt logs.",
+    "T5": "Generative AI tools are permitted and encouraged in this course.",
+  };
+
+  const COMPLIANCE_DEFINITIONS = {
+    "C0": "No disclosure required.",
+    "C1": "Minimal disclosure or brief mention required.",
+    "C2": "Structured disclosure; explain how AI was used.",
+    "C3": "Full audit: prompt logs and detailed documentation required.",
+  };
+
+  const ENFORCEMENT_DEFINITIONS = {
+    "E0": "Trust-based; reliant on academic integrity.",
+    "E1": "Instructive: warnings or guidance may be provided.",
+    "E2": "Investigative: detection and formal penalties possible.",
+    "E3": "Severe: automatic failure or dismissal may be enforced.",
+  };
+
+  function fillDefinitions(){
+    const cards = document.querySelectorAll('.glow-card');
+    if(cards.length < 3) return;
+    const codes = [
+      cards[0].querySelector('[style*="font-size:1.25rem"]').textContent.trim(),
+      cards[1].querySelector('[style*="font-size:1.25rem"]').textContent.trim(),
+      cards[2].querySelector('[style*="font-size:1.25rem"]').textContent.trim(),
+    ];
+    const defs = [TIER_DEFINITIONS[codes[0]] || '', COMPLIANCE_DEFINITIONS[codes[1]] || '', ENFORCEMENT_DEFINITIONS[codes[2]] || ''];
+    cards.forEach((card, i)=>{
+      const defEl = card.querySelector('.definition-text');
+      if(defEl) defEl.textContent = defs[i];
+    });
+  }
+
   // Wire up the Explain button to call the API and update cards in-place
   document.getElementById('explain-btn').addEventListener('click', async ()=>{
     const textarea = document.querySelector('textarea[name="syllabus_text"]');
@@ -133,6 +181,7 @@
       if(!res.ok){ throw new Error('Server error'); }
       const data = await res.json();
       fillCards(data);
+      fillDefinitions();
     }catch(err){
       console.error('Explain failed', err);
       alert('Failed to get explanation. Try again.');
