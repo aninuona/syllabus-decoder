@@ -23,14 +23,13 @@
       <form action="/decode" method="POST" class="decoder-form" style="margin:0">
           <textarea name="syllabus_text" placeholder="Paste your course's policy text here to receive a classification and explanation..." style="min-height:420px;">{{ pasted_text }}</textarea>
           <div style="margin-top:12px; display:flex; gap:8px;">
-            <button type="submit" class="btn-primary">Decode Policy</button>
-            <button type="button" id="explain-btn" class="btn-secondary" style="padding:10px 14px;">Explain</button>
+            <button type="button" id="explain-btn" class="btn-primary" style="padding:10px 14px;">Explain</button>
           </div>
       </form>
 
       <div style="position:relative;">
         <div style="display:grid; gap:16px;">
-          <div class="glow-card" style="padding:16px; border-radius:12px; box-shadow: 0 8px 30px rgba(0,0,0,0.08);">
+          <div class="glow-card expandable" style="padding:16px; border-radius:12px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); cursor:pointer;" data-target="t-def">
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <div>
                 <div class="label">T-Tier</div>
@@ -38,9 +37,10 @@
               </div>
             </div>
             <div style="margin-top:12px; white-space:pre-wrap;">{{ t_reason if t_reason is defined else '' }}</div>
+            <div id="t-def" class="expand-content" style="display:none; margin-top:12px; font-size:0.95rem; color:var(--ink-3);"></div>
           </div>
 
-          <div class="glow-card" style="padding:16px; border-radius:12px; box-shadow: 0 8px 30px rgba(0,0,0,0.08);">
+          <div class="glow-card expandable" style="padding:16px; border-radius:12px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); cursor:pointer;" data-target="c-def">
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <div>
                 <div class="label">C-Level</div>
@@ -48,9 +48,10 @@
               </div>
             </div>
             <div style="margin-top:12px; white-space:pre-wrap;">{{ c_reason if c_reason is defined else '' }}</div>
+            <div id="c-def" class="expand-content" style="display:none; margin-top:12px; font-size:0.95rem; color:var(--ink-3);"></div>
           </div>
 
-          <div class="glow-card" style="padding:16px; border-radius:12px; box-shadow: 0 8px 30px rgba(0,0,0,0.08);">
+          <div class="glow-card expandable" style="padding:16px; border-radius:12px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); cursor:pointer;" data-target="e-def">
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <div>
                 <div class="label">E-Level</div>
@@ -58,6 +59,7 @@
               </div>
             </div>
             <div style="margin-top:12px; white-space:pre-wrap;">{{ e_reason if e_reason is defined else '' }}</div>
+            <div id="e-def" class="expand-content" style="display:none; margin-top:12px; font-size:0.95rem; color:var(--ink-3);"></div>
           </div>
         </div>
       </div>
@@ -116,6 +118,34 @@
     eCard.querySelector('[style*="font-size:1.25rem"]').textContent = result.e_level || '--';
     eCard.querySelector('div[style*="white-space:pre-wrap"]') .textContent = result.e_reason || '';
     styleCardByCode(eCard);
+
+    // Populate only the matching definition for each category
+    const defs = {
+      'T0': 'T0 — Total prohibition: AI use is banned (or functionally banned) for the course or for all relevant work.',
+      'T1': 'T1 — Default prohibited, exceptions only: AI is not allowed unless explicitly permitted for a specific assignment or scenario.',
+      'T2': 'T2 — Permission-gated (ask first): AI may be allowed, but students must get prior instructor approval (case-by-case).',
+      'T3': 'T3 — Bounded use allowed: AI allowed for limited support (brainstorming, outlining, clarity, proofreading), but not to do the work.',
+      'T4': 'T4 — Allowed with transparency: AI is allowed to generate content, including on graded work, if it is properly disclosed and documented.',
+      'T5': 'T5 — Unrestricted or encouraged: Use of generative AI on any task is welcomed or mandatory, with constraints limited to responsibility and honesty.',
+
+      'C0': 'C0 — None: No requirement to disclose or cite AI use.',
+      'C1': 'C1 — Minimal: Brief mention of AI use is required, but no specific citation format is mandated.',
+      'C2': 'C2 — Structured: Formal citation (APA/MLA) and specific attribution of AI\'s role is required.',
+      'C3': 'C3 — Full Audit: Requires submission of prompt logs, drafts, and comprehensive reflections on AI use.',
+
+      'E0': 'E0 — Trust-Based: Relies on student integrity; no explicit mention of monitoring or detection tools.',
+      'E1': 'E1 — Instructive: Warns about AI hallucinations and the general risks of academic dishonesty.',
+      'E2': 'E2 — Investigative: Explicitly mentions that AI detectors, manual audits, or version history will be used.',
+      'E3': 'E3 — Zero-Tolerance: Automatic referral to the student conduct office for any suspected violation.'
+    };
+
+    const tDef = document.getElementById('t-def');
+    const cDef = document.getElementById('c-def');
+    const eDef = document.getElementById('e-def');
+
+    if(tDef) tDef.innerHTML = defs[result.t_tier] || 'No T-tier definition available.';
+    if(cDef) cDef.innerHTML = defs[result.c_level] || 'No C-level definition available.';
+    if(eDef) eDef.innerHTML = defs[result.e_level] || 'No E-level definition available.';
   }
 
   // Wire up the Explain button to call the API and update cards in-place
@@ -139,9 +169,22 @@
     }
   });
 
-  // Style initial cards on load (use any existing server-rendered values)
+  // Style initial cards on load 
   window.addEventListener('load', ()=>{
     document.querySelectorAll('.glow-card').forEach(styleCardByCode);
+    // wire up expandable definition toggles
+    document.querySelectorAll('.glow-card.expandable').forEach(card=>{
+      card.addEventListener('click', (e)=>{
+        // avoid clicking buttons inside the card
+        if(e.target.tagName.toLowerCase() === 'button') return;
+        const target = card.getAttribute('data-target');
+        if(!target) return;
+        const el = document.getElementById(target);
+        if(!el) return;
+        const isHidden = el.style.display === 'none' || el.style.display === '';
+        el.style.display = isHidden ? 'block' : 'none';
+      });
+    });
   });
 </script>
 </html>
