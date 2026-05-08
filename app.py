@@ -260,12 +260,21 @@ def create_app(env: str = None) -> Flask:
             from models import User
             try:
                 if not User.query.first():
-                    admin_email = os.environ.get("ADMIN_EMAIL", "").strip().lower()
-                    if admin_email:
-                        admin = User(email=admin_email, password_hash="UNSET", role="admin")
-                        db.session.add(admin)
+                    # Create admin users if defined in environment (supports comma-separated list)
+                    admin_emails_raw = os.environ.get("ADMIN_EMAIL")
+                    if admin_emails_raw:
+                        from models import User
+                        # Split "email1@test.com, email2@test.com" into a list
+                        admin_list = [e.strip() for e in admin_emails_raw.split(",") if e.strip()]
+                        
+                        for email_addr in admin_list:
+                            exists = User.query.filter_by(email=email_addr).first()
+                            if not exists:
+                                new_admin = User(email=email_addr, role="admin")
+                                db.session.add(new_admin)
+                                print(f"✓ Created admin: {email_addr}")
+                        
                         db.session.commit()
-                        print(f"✓ Auto-created admin account: {admin_email}")
             except Exception as admin_ex:
                 print(f"WARNING: Could not create admin account: {admin_ex}")
                 db.session.rollback()
