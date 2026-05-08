@@ -10,7 +10,10 @@
       }
 
       .result-container.show {
-        display: block;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--space-6);
+        margin-bottom: var(--space-6);
       }
 
       @keyframes slideIn {
@@ -24,12 +27,11 @@
         }
       }
 
-      .result-row {
+      .result-column {
         animation: slideIn 0.3s ease-out;
-        display: grid;
-        grid-template-columns: 300px 1fr;
-        gap: var(--space-6);
-        margin-bottom: var(--space-6);
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-4);
       }
 
       .comparison-card {
@@ -132,9 +134,10 @@
 
       .definition-panel {
         display: none;
-        margin-top: var(--space-4);
-        padding-top: var(--space-4);
-        border-top: 1px solid var(--border);
+        background: var(--surface);
+        border: 1.5px solid var(--border);
+        border-radius: var(--r-lg);
+        padding: var(--space-6);
       }
 
       .definition-panel.show {
@@ -147,6 +150,10 @@
         background: var(--surface-2);
         border-left: 4px solid var(--blue);
         border-radius: var(--r-md);
+      }
+
+      .definition:last-child {
+        margin-bottom: 0;
       }
 
       .definition-title {
@@ -232,30 +239,111 @@
       }
 
       .btn-secondary:hover {
-        opacity: 0.9;
+        background: var(--ink-3);
+      }
+
+      .btn-primary {
+        background: var(--blue);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: var(--r-lg);
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all var(--t-fast) var(--ease);
+        box-shadow: var(--shadow-blue);
+      }
+
+      .btn-primary:hover {
+        background: var(--blue-hover);
+      }
+
+      .game-container {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: var(--space-8);
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: var(--space-8);
+        min-height: calc(100vh - 100px);
+      }
+
+      .fragment-card {
+        background: var(--surface);
+        border: 1.5px solid var(--border);
+        border-radius: var(--r-xl);
+        padding: var(--space-8);
+        box-shadow: var(--shadow-md);
+        position: sticky;
+        top: var(--space-8);
+        height: fit-content;
+        max-height: calc(100vh - 120px);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .fragment-header {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        margin-bottom: var(--space-6);
+        padding-bottom: var(--space-4);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .fragment-badge {
+        background: var(--blue-light);
+        color: var(--blue);
+        font-size: 0.65rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        padding: 6px 12px;
+        border-radius: var(--r-full);
+      }
+
+      .fragment-card blockquote {
+        font-size: clamp(0.95rem, 1.5vw, 1.05rem);
+        line-height: 1.7;
+        color: var(--ink);
+        font-style: italic;
+        margin: 0;
+        padding: var(--space-4);
+        background: var(--surface-2);
+        border-left: 4px solid var(--blue);
+        border-radius: var(--r-md);
+        overflow-y: auto;
+        min-height: 200px;
+        height: 100%;
       }
 
       @media (max-width: 1024px) {
-        .result-row {
+        .game-container {
           grid-template-columns: 1fr;
+          gap: var(--space-6);
         }
 
-        .comparison-card {
-          padding: var(--space-4);
+        .fragment-card {
+          position: relative;
+          top: 0;
+          max-height: 400px;
+        }
+
+        .result-container.show {
+          grid-template-columns: 1fr;
         }
       }
     </style>
 </head>
 <body>
-
-  <nav class="main-nav">
-    <div class="logo"><a href="/">Syllabus Decoder</a></div>
-    <div class="nav-links">
-      <a href="/decoder">Decoder</a>
-      <a href="/buildsyllabus">Policy Builder</a>
-      <a href="/traininggame">Training Game</a>
-      <a href="/admin">Admin</a>
-    </div>
+  <nav class="nav">
+    <a href="/" class="nav__brand">Syllabus Decoder</a>
+    <ul class="nav__links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/guide">Policy Guide</a></li>
+      <li><a href="/game" class="active">Training Game</a></li>
+    </ul>
   </nav>
 
   <header class="game-header">
@@ -265,109 +353,116 @@
 
   <main class="game-container">
     <div class="fragment-card">
-        <span class="fragment-id">Fragment #<span id="fragment-num">—</span></span>
-        <blockquote id="policy-text">Loading...</blockquote>
+      <div class="fragment-header">
+        <span class="fragment-badge">Fragment <span id="fragment-num">—</span></span>
+      </div>
+      <blockquote id="policy-text">Loading...</blockquote>
     </div>
 
-    <form class="quiz-form" id="quiz-form">
+    <div>
+      <form id="quiz-form" class="quiz-form">
         <div class="input-group">
-            <label>Predict T-Tier</label>
-            <select id="user_t" required>
-                <option selected disabled value="">Select Tier</option>
-                <option value="T0">T0 - Prohibited</option>
-                <option value="T1">T1 - Some exceptions</option>
-                <option value="T2">T2 - Ask permission</option>
-                <option value="T3">T3 - Bounded use</option>
-                <option value="T4">T4 - Allowed with documentation</option>
-                <option value="T5">T5 - Open/encouraged</option>
-            </select>
+          <label for="user_t">T-Tier (Permission Level)</label>
+          <select id="user_t" required>
+            <option value="">Select T-Tier...</option>
+            <option value="T0">T0 – Total Prohibition</option>
+            <option value="T1">T1 – Default Prohibited</option>
+            <option value="T2">T2 – Permission-Gated</option>
+            <option value="T3">T3 – Bounded Use</option>
+            <option value="T4">T4 – Allowed with Transparency</option>
+            <option value="T5">T5 – Unrestricted/Encouraged</option>
+          </select>
         </div>
 
         <div class="input-group">
-            <label>Predict C-Level</label>
-            <select id="user_c" required>
-                <option selected disabled value="">Select Compliance</option>
-                <option value="C0">C0 - None</option>
-                <option value="C1">C1 - Note if used</option>
-                <option value="C2">C2 - Description of use</option>
-                <option value="C3">C3 - Logs/Step-by-step disclosure</option>
-            </select>
+          <label for="user_c">C-Level (Compliance Requirement)</label>
+          <select id="user_c" required>
+            <option value="">Select C-Level...</option>
+            <option value="C0">C0 – None</option>
+            <option value="C1">C1 – Minimal</option>
+            <option value="C2">C2 – Structured</option>
+            <option value="C3">C3 – Full Audit</option>
+          </select>
         </div>
 
         <div class="input-group">
-            <label>Predict E-Level</label>
-            <select id="user_e" required>
-                <option selected disabled value="">Select Enforcement</option>
-                <option value="E0">E0 - None</option>
-                <option value="E1">E1 - Cautionary language</option>
-                <option value="E2">E2 - Explicit penalty</option>
-                <option value="E3">E3 - Automatic/extreme consequence</option>
-            </select>
+          <label for="user_e">E-Level (Enforcement Posture)</label>
+          <select id="user_e" required>
+            <option value="">Select E-Level...</option>
+            <option value="E0">E0 – Trust-Based</option>
+            <option value="E1">E1 – Instructive</option>
+            <option value="E2">E2 – Investigative</option>
+            <option value="E3">E3 – Zero-Tolerance</option>
+          </select>
         </div>
 
-        <button type="submit" class="btn-primary">Submit Analysis</button>
-    </form>
+        <button type="submit" class="btn-primary">Submit Answer</button>
+      </form>
 
-    <div class="result-container" id="result-container">
-      <div class="result-row" id="t-result-row">
-        <div class="comparison-card" id="t-card">
-          <div class="card-header">Your vs Verified</div>
-          <div class="card-content">
-            <div class="card-value">
-              <span class="card-label">Your T-Tier</span>
-              <span class="card-code" id="t-user-code"></span>
-            </div>
-            <div class="card-value">
-              <span class="card-label">Database T-Tier</span>
-              <span class="card-code" id="t-correct-code"></span>
+      <div id="result-container" class="result-container">
+        <!-- T Column -->
+        <div class="result-column" id="t-column">
+          <div class="comparison-card" id="t-card">
+            <div class="card-header">Your vs Verified</div>
+            <div class="card-content">
+              <div class="card-value">
+                <span class="card-label">Your T-Level</span>
+                <span class="card-code" id="t-user-code"></span>
+              </div>
+              <div class="card-value">
+                <span class="card-label">Database T-Level</span>
+                <span class="card-code" id="t-correct-code"></span>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="explanation-section">
-          <div class="explanation-header">T-Tier Analysis</div>
-          <div class="explanation-text" id="t-explanation"></div>
+          <div class="explanation-section">
+            <div class="explanation-header">T-Tier Analysis</div>
+            <div class="explanation-text" id="t-explanation"></div>
+          </div>
           <div class="definition-panel" id="t-definitions"></div>
         </div>
-      </div>
 
-      <div class="result-row" id="c-result-row">
-        <div class="comparison-card" id="c-card">
-          <div class="card-header">Your vs Verified</div>
-          <div class="card-content">
-            <div class="card-value">
-              <span class="card-label">Your C-Level</span>
-              <span class="card-code" id="c-user-code"></span>
-            </div>
-            <div class="card-value">
-              <span class="card-label">Database C-Level</span>
-              <span class="card-code" id="c-correct-code"></span>
+        <!-- C Column -->
+        <div class="result-column" id="c-column">
+          <div class="comparison-card" id="c-card">
+            <div class="card-header">Your vs Verified</div>
+            <div class="card-content">
+              <div class="card-value">
+                <span class="card-label">Your C-Level</span>
+                <span class="card-code" id="c-user-code"></span>
+              </div>
+              <div class="card-value">
+                <span class="card-label">Database C-Level</span>
+                <span class="card-code" id="c-correct-code"></span>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="explanation-section">
-          <div class="explanation-header">Compliance Analysis</div>
-          <div class="explanation-text" id="c-explanation"></div>
+          <div class="explanation-section">
+            <div class="explanation-header">Compliance Analysis</div>
+            <div class="explanation-text" id="c-explanation"></div>
+          </div>
           <div class="definition-panel" id="c-definitions"></div>
         </div>
-      </div>
 
-      <div class="result-row" id="e-result-row">
-        <div class="comparison-card" id="e-card">
-          <div class="card-header">Your vs Verified</div>
-          <div class="card-content">
-            <div class="card-value">
-              <span class="card-label">Your E-Level</span>
-              <span class="card-code" id="e-user-code"></span>
-            </div>
-            <div class="card-value">
-              <span class="card-label">Database E-Level</span>
-              <span class="card-code" id="e-correct-code"></span>
+        <!-- E Column -->
+        <div class="result-column" id="e-column">
+          <div class="comparison-card" id="e-card">
+            <div class="card-header">Your vs Verified</div>
+            <div class="card-content">
+              <div class="card-value">
+                <span class="card-label">Your E-Level</span>
+                <span class="card-code" id="e-user-code"></span>
+              </div>
+              <div class="card-value">
+                <span class="card-label">Database E-Level</span>
+                <span class="card-code" id="e-correct-code"></span>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="explanation-section">
-          <div class="explanation-header">Enforcement Analysis</div>
-          <div class="explanation-text" id="e-explanation"></div>
+          <div class="explanation-section">
+            <div class="explanation-header">Enforcement Analysis</div>
+            <div class="explanation-text" id="e-explanation"></div>
+          </div>
           <div class="definition-panel" id="e-definitions"></div>
         </div>
       </div>
@@ -426,7 +521,6 @@
     }
 
     function getDistance(user, correct) {
-      // Extract numeric part
       const userNum = parseInt(user[1]);
       const correctNum = parseInt(correct[1]);
       return Math.abs(userNum - correctNum);
