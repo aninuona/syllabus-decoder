@@ -38,6 +38,15 @@ TIER_MAP = {
 def get_questions():
     """Fetch all builder questions in order."""
     questions = BuilderQuestion.query.order_by(BuilderQuestion.step_number).all()
+
+    # Deduplicate by step_number in case the DB contains duplicate rows
+    seen = set()
+    unique_questions = []
+    for q in questions:
+        if q.step_number in seen:
+            continue
+        seen.add(q.step_number)
+        unique_questions.append(q)
     
     questions_data = [{
         'step_number': q.step_number,
@@ -52,7 +61,7 @@ def get_questions():
         'option_c_title': q.option_c_title,
         'option_c_desc': q.option_c_desc,
         'option_c_value': q.option_c_value,
-    } for q in questions]
+    } for q in unique_questions]
     
     return jsonify(questions_data), 200
 
