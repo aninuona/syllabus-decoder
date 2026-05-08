@@ -74,10 +74,11 @@ def generate_policy():
 
     # Save to the database so admin can see all generated policies
     new_policy = PolicyGenerated(
-        course_name   = course,
-        policy_text   = policy_text,
-        tier_id       = tier,
-        compliance_id = compliance,
+        course_name    = course,
+        policy_text    = policy_text,
+        tier_id        = tier,
+        compliance_id  = compliance,
+        enforcement_id = enforcement,
     )
     db.session.add(new_policy)
     db.session.commit()
