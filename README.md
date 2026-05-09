@@ -343,7 +343,7 @@ For example:
 - If it sees "brainstorm," "outline," "limited" = T3
 - If it sees "encouraged," "freely" = T5
 
-The system is about 78% accurate. It works best for very permissive or very restrictive policies. Middle-ground policies are harder because they're often written ambiguously. We look forward to refining this system.
+The system is about 78% accurate. It works best for very permissive or very restrictive policies. Middle-ground policies are harder because they're often written ambiguously. 
 
 ## Project Structure
 
