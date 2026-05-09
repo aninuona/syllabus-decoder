@@ -1,4 +1,4 @@
-# Syllabus Decoder - Complete README
+# Syllabus Decoder
 
 A web application that helps teachers and students understand and create clear AI policies for college courses.
 
