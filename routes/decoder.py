@@ -76,7 +76,7 @@ def classify_policy(text: str) -> dict:
 
     # T-Tier scoring
     t_map = [
-        ("T0", ["prohibited", "not permitted", "strictly forbidden", "no use of ai", "no ai", "ban"]),
+        ("T0", ["prohibited", "not permitted", "strictly forbidden", "no use of ai", "no ai", "ban", "do not", "never"]),
         ("T1", ["strongly discouraged", "avoid", "refrain", "prefer you not"]),
         ("T2", ["prior approval", "ask permission", "instructor approval", "permission before"]),
         ("T3", ["brainstorm", "outline only", "limited use", "specific tasks only", "bounded"]),
