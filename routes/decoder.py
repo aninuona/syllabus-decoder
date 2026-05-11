@@ -11,7 +11,7 @@ decoder_bp = Blueprint("decoder", __name__)
 def classify_policy(text: str) -> dict:
     """Lightweight NLP-style classifier with brief explanations for each category.
 
-    This avoids heavy external models. It scores keyword groups and returns
+    It scores keyword groups and returns
     the best matching code plus short reason snippets explaining matches.
     """
     text_lower = (text or "").lower()
