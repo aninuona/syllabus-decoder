@@ -138,13 +138,13 @@ def classify_policy(text: str) -> dict:
     # If TF-IDF produced confident predictions, use them with explanatory confidence
     if tf_t_score >= TF_THRESHOLD:
         best_t = tf_t
-        t_reason = f"TF-IDF match score: {tf_t_score:.2f}. {t_reason}"
+        t_reason = f"{t_reason}"
     if tf_c_score >= TF_THRESHOLD:
         best_c = tf_c
-        c_reason = f"TF-IDF match score: {tf_c_score:.2f}. {c_reason}"
+        c_reason = f"{c_reason}"
     if tf_e_score >= TF_THRESHOLD:
         best_e = tf_e
-        e_reason = f"TF-IDF match score: {tf_e_score:.2f}. {e_reason}"
+        e_reason = f"{e_reason}"
 
     return {
         "t_tier": best_t,
